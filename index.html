@@ -1,268 +1,425 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Family Hub</title>
+<title>Family Hub Outings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f6f7fb; --card:#fff; --text:#1f2430; --muted:#6b7280; --accent:#4f46e5; --line:#e5e7eb; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#12141a; --card:#1c1f28; --text:#eceef4; --muted:#9aa1b0; --accent:#818cf8; --line:#2c303c; }
-  }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--text); }
-  header { padding:16px; text-align:center; font-size:1.4rem; font-weight:700; }
-  nav { display:flex; gap:6px; padding:0 12px 12px; overflow-x:auto; justify-content:center; }
-  nav button { border:0; background:var(--card); color:var(--text); padding:10px 16px; border-radius:999px; font-size:1rem; cursor:pointer; border:1px solid var(--line); }
-  nav button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-  main { max-width:640px; margin:0 auto; padding:0 16px 40px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:10px; }
-  form { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-  input, select { padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:1rem; flex:1; min-width:110px; }
-  .btn { padding:10px 16px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-size:1rem; cursor:pointer; }
-  .row { display:flex; align-items:center; gap:10px; }
-  .row .grow { flex:1; }
-  .muted { color:var(--muted); font-size:.85rem; }
-  .done { text-decoration:line-through; color:var(--muted); }
-  .x { background:none; border:0; color:var(--muted); font-size:1.2rem; cursor:pointer; }
-  .dot { width:12px; height:12px; border-radius:50%; display:inline-block; }
-  input[type=checkbox] { width:22px; height:22px; flex:none; min-width:0; }
-  .score { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-  .score .card { flex:1; text-align:center; margin:0; min-width:90px; }
-  .score b { font-size:1.5rem; display:block; }
-  .day { display:flex; gap:12px; align-items:flex-start; }
-  .day .ic { font-size:2rem; }
-  .day h3 { margin:0; font-size:1.05rem; }
-  .links { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-  .links a { font-size:.85rem; padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--accent); text-decoration:none; background:var(--bg); }
-  .home { text-align:center; color:var(--muted); }
-  .tip { background:var(--bg); border-radius:10px; padding:8px 10px; margin-top:8px; font-size:.85rem; }
-  .wk { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  .small { padding:6px 12px; background:var(--card); color:var(--text); border:1px solid var(--line); }
-  details summary { cursor:pointer; font-weight:600; }
-  .social { background:var(--bg); border-left:3px solid #10b981; border-radius:10px; padding:8px 10px; margin-top:8px; font-size:.85rem; }
-  .fav { font-size:.75rem; background:#f59e0b; color:#fff; border-radius:999px; padding:2px 8px; margin-left:6px; vertical-align:middle; }
-  .acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
-  .acts button { font-size:.85rem; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; }
-  .acts label { margin-right:auto; }
+/* VOICE: warm, playful, confident, like a family picture book
+   IDEA: a picture-book week planner, one illustrated page per day
+   PICTURE: a big hand-drawn scene of the chosen day's outing (or her own photo)
+   COLOUR and TYPE: season colours lead the band (spring green, summer blue, fall rust, winter navy); Fredoka + Nunito
+   LAYOUT: season band with week calendar strip, big day page, whole-week list, bottom tab bar */
+:root{color-scheme:light dark;--bg:light-dark(#fffaf2,#15130f);--card:light-dark(#ffffff,#211e19);--ink:light-dark(#1d1a16,#f5efe6);--mut:light-dark(#6f665b,#b3a998);--line:light-dark(#efe5d6,#34302a);--band:#2f8f5b;--acc:#ff6f91;--soft:light-dark(#fff3e4,#2a251e)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip;padding-bottom:88px}
+h1,h2,h3,.f{font-family:Fredoka,Nunito,sans-serif;margin:0;line-height:1.08;text-wrap:balance}
+button,input,select{font:inherit;color:inherit}
+.band{background:var(--band);color:#fff;padding:18px max(4vw,14px) 22px;transition:background .4s}
+.wrap{max-width:760px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+.sub{opacity:.9;font-weight:700;font-size:14px}
+.nav{display:flex;gap:6px}
+.nav button{width:44px;height:44px;border-radius:50%;border:2px solid #ffffff66;background:#ffffff1f;color:#fff;font-size:20px;cursor:pointer}
+.nav button:focus-visible,.cell:focus-visible,.btn:focus-visible,.chip:focus-visible,.tabs button:focus-visible{outline:3px solid #ffd34d;outline-offset:2px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:16px}
+.cell{border:0;border-radius:16px;background:#ffffff26;color:#fff;padding:8px 2px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:44px}
+.cell .dn{font-size:12px;font-weight:800;opacity:.85}
+.cell .dd{font-family:Fredoka,Nunito,system-ui,sans-serif;font-size:20px;font-weight:600;line-height:1}
+.cell .th{width:100%;max-width:46px;aspect-ratio:1;border-radius:50%;overflow:hidden;border:2px solid #ffffff80;position:relative}
+.cell .th svg,.cell .th img{width:100%;height:100%;display:block;object-fit:cover}
+.cell .ok{position:absolute;right:-1px;bottom:-1px;width:18px;height:18px;border-radius:50%;background:#22c55e;color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid #fff}
+.cell.on{background:#fff;color:var(--band)}
+.cell.on .th{border-color:var(--band)}
+.cell.today .dn::after{content:" •"}
+main{max-width:760px;margin:0 auto;padding:0 max(4vw,14px)}
+.page{background:var(--card);border-radius:24px;margin-top:-6px;overflow:hidden;box-shadow:0 10px 30px #0000001a;border:1px solid var(--line);position:relative;top:14px}
+.hero{aspect-ratio:16/10;position:relative;background:var(--soft)}
+.hero svg,.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.tag{position:absolute;left:14px;top:14px;background:#fff;color:#1d1a16;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;box-shadow:0 2px 8px #0002}
+.tag.fav{background:#f59e0b;color:#fff;left:auto;right:14px}
+.body{padding:18px 18px 20px}
+.body h2{font-size:clamp(26px,6.5vw,34px);font-weight:700}
+.when{color:var(--mut);font-weight:800;font-size:14px;margin-bottom:6px}
+.note{border-radius:16px;padding:12px 14px;margin-top:12px;font-size:15px}
+.note b{display:block;font-family:Fredoka,Nunito,system-ui,sans-serif;font-weight:600;font-size:16px;margin-bottom:2px}
+.n1{background:var(--soft)}
+.n2{background:light-dark(#e8f8ef,#17281f)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:var(--card);font-weight:800;font-size:14px;text-decoration:none;color:var(--ink);cursor:pointer}
+.chip.go{background:var(--band);border-color:var(--band);color:#fff}
+.chip.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.btn{min-height:44px;padding:0 18px;border:0;border-radius:14px;background:var(--band);color:#fff;font-weight:800;cursor:pointer}
+h3.sec{font-size:22px;font-weight:600;margin:40px 0 10px}
+.list{display:grid;gap:10px}
+.item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px;cursor:pointer;text-align:start;width:100%}
+.item .pic{width:92px;flex:none;aspect-ratio:16/11;border-radius:12px;overflow:hidden;position:relative}
+.item .pic svg,.item .pic img{width:100%;height:100%;display:block;object-fit:cover}
+.item .t{font-family:Fredoka,Nunito,system-ui,sans-serif;font-weight:600;font-size:17px;line-height:1.15}
+.item .d{font-size:13px;color:var(--mut);font-weight:800}
+.item .s{margin-left:auto;font-size:13px;font-weight:800;color:#16a34a;padding-right:6px;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:12px}
+.mut{color:var(--mut);font-size:14px}
+form{display:grid;gap:8px;margin-top:10px}
+input,select{min-height:44px;padding:0 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);font-size:16px;width:100%}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.li{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.li .ph{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none;background:var(--soft);overflow:hidden}
+.li .ph svg{width:100%;height:100%}
+.li .g{flex:1}
+.x{width:44px;height:44px;border:0;background:none;color:var(--mut);font-size:20px;cursor:pointer;flex:none}
+.grp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.grp a{display:block;padding:12px;border-radius:14px;background:var(--soft);color:var(--ink);text-decoration:none;font-weight:800;font-size:14px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+.tabs button{flex:1;max-width:130px;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:800;color:var(--mut);padding:6px 0;cursor:pointer;min-height:52px}
+.tabs svg{width:24px;height:24px}
+.tabs button.on{color:var(--band)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.seg button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:var(--card);font-weight:800;cursor:pointer}
+.seg button.on{background:var(--band);border-color:var(--band);color:#fff}
+.chk{width:24px;height:24px;flex:none;min-height:0;accent-color:var(--band)}
+.strike{text-decoration:line-through;color:var(--mut)}
+#toast{display:none;position:fixed;left:12px;right:12px;bottom:84px;max-width:560px;margin:0 auto;z-index:9;box-shadow:0 10px 30px #0004}
+.home-h{font-size:clamp(26px,6.5vw,34px)}
+@media(prefers-reduced-motion:no-preference){.hero.anim>*{animation:pop .4s ease}@keyframes pop{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}}
+@media(max-width:420px){.cell .dd{font-size:17px}.cell{border-radius:12px}.cal{gap:4px}}
 </style>
 </head>
 <body>
-<header>🏡 Family Hub</header>
-<nav id="tabs"></nav>
-<main id="view"></main>
-<div id="toast" class="card" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;max-width:620px;margin:0 auto;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:9">
-  <b>💬 Invite message</b><p style="user-select:all;margin:8px 0"></p><div class="muted"></div>
-  <button class="btn small" style="margin-top:8px" onclick="this.parentNode.style.display='none'">Close</button></div>
-
+<div id="app"></div>
+<nav class="tabs" id="tabs"></nav>
+<div id="toast" class="card"><b class="f" style="font-size:18px">Invite message</b><p id="tmsg" style="user-select:all;margin:8px 0"></p><div class="mut" id="tst"></div><div class="row"><button class="btn" id="tclose">Close</button></div></div>
 <script>
-const COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#a855f7","#ec4899"];
-const TABS = [["calendar","📅 Calendar"],["chores","✅ Chores"],["shopping","🛒 Shopping"],["outings","🌳 Outings"],["family","👨‍👩‍👦‍👦 Family"]];
-
+{
+// ---------- state ----------
 let state;
 try { state = JSON.parse(localStorage.getItem("familyhub")); } catch (e) {}
-state = state || { tab:"outings", members:[], events:[], chores:[], shopping:[], outings:{ city:'', st:'', season:'auto', week:0, done:{} } };
-state.outings = state.outings || { city:'', st:'', season:'auto', week:0, done:{} };
-state.outings.favs = state.outings.favs || []; state.outings.friends = state.outings.friends || []; state.outings.swap = state.outings.swap || {};
-const save = () => { try { localStorage.setItem("familyhub", JSON.stringify(state)); } catch (e) {} render(); };
-const uid = () => Math.random().toString(36).slice(2, 9);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const member = id => state.members.find(m => m.id === id);
-const memberOptions = (withAll) => (withAll ? '<option value="">Everyone</option>' : '') +
-  state.members.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join("");
-const dot = id => { const m = member(id); return m ? `<span class="dot" style="background:${m.color}"></span> ${esc(m.name)}` : "Everyone"; };
+state = state || {};
+state.tab = ["week","parents","favs","family","settings"].includes(state.tab) ? state.tab : "week";
+state.members = state.members || []; state.events = state.events || []; state.chores = state.chores || []; state.shopping = state.shopping || [];
+const o = state.outings = state.outings || {};
+o.city = o.city || ""; o.st = o.st || ""; o.season = o.season || "auto"; o.week = 0;
+o.done = o.done || {}; o.favs = o.favs || []; o.friends = o.friends || []; o.swap = o.swap || {}; o.photos = o.photos || {};
+state.ftab = state.ftab || "calendar";
+let sel = null, anim = false;
 
-function render() {
-  document.getElementById("tabs").innerHTML = TABS.map(([k, l]) =>
-    `<button class="${state.tab === k ? "active" : ""}" onclick="state.tab='${k}';save()">${l}</button>`).join("");
-  document.getElementById("view").innerHTML = views[state.tab]();
+const toast = (msg, status) => { document.getElementById("tmsg").textContent = msg; document.getElementById("tst").textContent = status || ""; document.getElementById("toast").style.display = "block"; };
+document.getElementById("tclose").onclick = () => document.getElementById("toast").style.display = "none";
+function save() {
+  try { localStorage.setItem("familyhub", JSON.stringify(state)); }
+  catch (e) { toast("Your phone's storage for this page is full. Remove a few photos to add more.", ""); }
+  render();
+}
+const uid = () => Math.random().toString(36).slice(2, 9);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const okPhoto = u => typeof u === "string" && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(u);
+
+// ---------- palettes ----------
+const PAL = {
+  spring:{band:"#2f8f5b",acc:"#ff6f91",sky:["#a8e0ff","#e8f7ff"],sun:"#ffd34d",g1:"#86d06f",g2:"#5fb45a",tree:"#3f9b4f",name:"Spring"},
+  summer:{band:"#0a74c4",acc:"#ff8a00",sky:["#4dbdff","#c4ecff"],sun:"#ffd23f",g1:"#94d36c",g2:"#6cba4c",tree:"#2f8f3f",name:"Summer"},
+  fall:{band:"#a8400f",acc:"#e11d48",sky:["#ffbf7a","#ffeccf"],sun:"#fff1b8",g1:"#d8a548",g2:"#b8822c",tree:"#d9622b",name:"Fall"},
+  winter:{band:"#1e3a7a",acc:"#e11d48",sky:["#9ec5ee","#e7f1fb"],sun:"#ffffff",g1:"#f4f8fc",g2:"#d6e3f1",tree:"#2f6b5a",name:"Winter"}
+};
+
+// ---------- illustrations ----------
+let gid = 0;
+const tri = (x, y, s, c) => `<rect x="${x-3}" y="${y}" width="6" height="${s*.7}" fill="#7c4a1e"/><path d="M${x-s} ${y+2}L${x} ${y-s*2.2}L${x+s} ${y+2}Z" fill="${c}"/>`;
+const building = (wall, roof, door) => `<rect x="96" y="88" width="128" height="70" fill="${wall}"/><path d="M84 90L160 52L236 90Z" fill="${roof}"/>` +
+  [108,132,180,204].map(x => `<rect x="${x}" y="96" width="9" height="58" fill="#fff" opacity=".8"/>`).join("") +
+  `<rect x="148" y="116" width="24" height="42" rx="12" fill="${door}"/><rect x="88" y="156" width="144" height="7" rx="2" fill="#0000002a"/>`;
+const cube = (x, y, s, c, l) => `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="6" fill="${c}"/><text x="${x+s/2}" y="${y+s*.72}" font-size="${s*.6}" text-anchor="middle" fill="#fff" font-family="Fredoka, Nunito, sans-serif" font-weight="700">${l}</text>`;
+const fish = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse rx="22" ry="12" fill="${c}"/><path d="M18 0L34-12V12Z" fill="${c}"/><circle cx="-10" cy="-3" r="3.2" fill="#fff"/><circle cx="-10.5" cy="-3" r="1.6" fill="#111"/></g>`;
+const pk = (x, y, r) => `<ellipse cx="${x}" cy="${y}" rx="${r*1.3}" ry="${r}" fill="#f97316"/><ellipse cx="${x}" cy="${y}" rx="${r*.45}" ry="${r}" fill="#fdba74" opacity=".5"/><rect x="${x-2}" y="${y-r-7}" width="4" height="9" rx="2" fill="#4d7c0f"/>`;
+const note = (x, y, c) => `<ellipse cx="${x}" cy="${y}" rx="9" ry="7" fill="${c}" transform="rotate(-20 ${x} ${y})"/><rect x="${x+6}" y="${y-38}" width="3.5" height="38" fill="${c}"/><path d="M${x+9} ${y-38}q14 6 12 20q-3-10-12-11z" fill="${c}"/>`;
+const ART = {
+  library: p => ({fg: building("#f6e6c8","#b45309","#7c2d12") + `<g transform="translate(240 150)"><rect width="46" height="10" rx="2" fill="#ef4444"/><rect x="4" y="-10" width="40" height="10" rx="2" fill="#3b82f6"/><rect x="-2" y="-20" width="44" height="10" rx="2" fill="#f59e0b"/><rect x="6" y="-30" width="34" height="10" rx="2" fill="#10b981"/></g>`}),
+  museum: p => ({fg: building("#eceff3","#475569","#1e293b") + `<line x1="160" y1="52" x2="160" y2="28" stroke="#334155" stroke-width="2.5"/><path d="M160 28h22l-6 7 6 7h-22z" fill="${p.acc}"/>`}),
+  blocks: p => ({fg: cube(102,118,40,"#ef4444","A") + cube(146,118,40,"#3b82f6","B") + cube(124,76,40,"#f59e0b","C") + `<circle cx="226" cy="140" r="20" fill="${p.acc}"/><path d="M206 140h40M226 120c10 10 10 30 0 40" stroke="#fff" stroke-width="3" fill="none"/>`}),
+  zoo: p => ({fg: tri(64,128,26,p.tree) + `${[150,160,192,202].map(x=>`<rect x="${x}" y="126" width="7" height="34" rx="3" fill="#e0a13a"/>`).join("")}<ellipse cx="176" cy="122" rx="34" ry="17" fill="#f2b544"/><path d="M196 116L216 58L227 61L211 122Z" fill="#f2b544"/><ellipse cx="229" cy="57" rx="15" ry="8" fill="#f2b544"/><path d="M224 50l-2-10M231 50l1-10" stroke="#8a4b12" stroke-width="3" stroke-linecap="round"/><circle cx="236" cy="55" r="2" fill="#111"/>${[[165,116],[182,126],[194,114],[212,80],[208,98],[156,126]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#b8691f"/>`).join("")}`}),
+  fish: p => ({bg: `<rect width="320" height="200" fill="#0b78bf"/><rect width="320" height="70" fill="#47b3ef" opacity=".55"/><path d="M0 180Q160 164 320 180V200H0Z" fill="#e9cc8e"/>`,
+    fg: `<path d="M40 182q-12-30 4-60q12-24-2-44M64 182q10-26-4-50M268 182q-14-34 6-70" stroke="#16a34a" stroke-width="6" fill="none" stroke-linecap="round"/>` + fish(130,90,1.4,"#ff8a3d") + fish(210,130,1,"#facc15") + fish(220,62,.8,"#f472b6") + fish(96,144,.7,"#a78bfa") + [[112,60,5],[118,44,3],[200,40,4],[252,100,3]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>`).join("")}),
+  farm: p => ({fg: `<rect x="112" y="96" width="96" height="62" fill="#c0392b"/><path d="M102 100L160 62L218 100Z" fill="#8e2a20"/><rect x="142" y="118" width="36" height="40" fill="#fff"/><path d="M142 118L178 158M178 118L142 158" stroke="#c0392b" stroke-width="4"/><rect x="220" y="84" width="30" height="74" fill="#d6d3d1"/><path d="M220 84a15 15 0 0 1 30 0Z" fill="#78716c"/>` + [24,48,72].map(x=>`<rect x="${x}" y="138" width="5" height="24" fill="#fff"/>`).join("") + `<rect x="18" y="142" width="64" height="4" fill="#fff"/><rect x="18" y="152" width="64" height="4" fill="#fff"/><ellipse cx="270" cy="158" rx="16" ry="11" fill="#fff"/><circle cx="286" cy="152" r="7" fill="#3f3f46"/>`}),
+  flowers: p => ({fg: [0,1].map(r => Array.from({length:9},(_, i) => { const x = 28 + i*33 + r*16, y = 140 + r*16, c = [p.acc,"#facc15","#f472b6","#a855f7"][(i+r)%4];
+    return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+28}" stroke="#2f7d32" stroke-width="3"/><path d="M${x-8} ${y}Q${x-9} ${y-15} ${x-4} ${y-17}L${x} ${y-10}L${x+4} ${y-17}Q${x+9} ${y-15} ${x+8} ${y}Q${x} ${y+6} ${x-8} ${y}Z" fill="${c}"/>`; }).join("")).join("")}),
+  park: p => ({fg: tri(270,124,24,p.tree) + `<path d="M40 160L62 92L84 160M62 92h60M100 160L122 92L144 160" stroke="#64748b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M80 92v34M104 92v34" stroke="#94a3b8" stroke-width="2"/><rect x="74" y="124" width="36" height="6" rx="3" fill="${p.acc}"/><rect x="162" y="96" width="36" height="8" rx="2" fill="#f59e0b"/><path d="M166 104v56M194 104v56M166 116h28M166 130h28M166 144h28" stroke="#64748b" stroke-width="4"/><path d="M196 100q30 4 40 56" stroke="${p.acc}" stroke-width="11" fill="none" stroke-linecap="round"/>`}),
+  splash: p => ({fg: `<ellipse cx="160" cy="166" rx="128" ry="16" fill="#7dd3fc"/>` + [[100,-26],[100,26],[160,-34],[160,34],[220,-26],[220,26]].map(([x,d])=>`<path d="M${x} 164Q${x+d} 86 ${x+d*1.6} 164" stroke="#38bdf8" stroke-width="5" fill="none" stroke-linecap="round"/>`).join("") + [[120,84],[200,90],[160,70],[90,110],[240,112]].map(([x,y])=>`<path d="M${x} ${y-8}q6 9 0 14q-6-5 0-14z" fill="#0ea5e9"/>`).join("")}),
+  pool: p => ({bg: `<rect width="320" height="200" fill="#e0f2fe"/>${Array.from({length:8},(_, i)=>`<path d="M${i*40} 0v100" stroke="#bae6fd" stroke-width="2"/>`).join("")}<rect y="96" width="320" height="104" fill="#38bdf8"/><path d="M0 100q20-8 40 0t40 0t40 0t40 0t40 0t40 0t40 0t40 0" stroke="#e0f2fe" stroke-width="4" fill="none"/>`,
+    fg: `<circle cx="196" cy="128" r="24" fill="none" stroke="${p.acc}" stroke-width="12"/><circle cx="196" cy="128" r="24" fill="none" stroke="#fff" stroke-width="12" stroke-dasharray="12 26"/><path d="M60 40v90M86 40v90M60 60h26M60 82h26M60 104h26" stroke="#94a3b8" stroke-width="5"/>`}),
+  beach: p => ({bg: `<defs><linearGradient id="bk${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.sky[0]}"/><stop offset="1" stop-color="${p.sky[1]}"/></linearGradient></defs><rect width="320" height="200" fill="url(#bk${gid})"/><circle cx="262" cy="44" r="20" fill="${p.sun}"/><rect y="104" width="320" height="50" fill="#0ea5e9"/><path d="M0 112q40-6 80 0t80 0t80 0t80 0" stroke="#bae6fd" stroke-width="3" fill="none"/><path d="M0 146Q160 128 320 146V200H0Z" fill="#fde68a"/>`,
+    fg: `<line x1="150" y1="78" x2="164" y2="170" stroke="#57534e" stroke-width="4"/><path d="M96 92Q150 40 206 70Z" fill="${p.acc}"/><path d="M134 74Q150 48 168 52L170 80Z" fill="#fff"/><path d="M222 154h28l-4 22h-20z" fill="#f43f5e"/><path d="M226 154q10-14 20 0" stroke="#f43f5e" stroke-width="3" fill="none"/>`}),
+  market: p => ({fg: Array.from({length:6},(_, i)=>`<rect x="${88+i*24}" y="76" width="24" height="24" fill="${i%2?"#fff":p.acc}"/><path d="M${88+i*24} 100a12 10 0 0 0 24 0z" fill="${i%2?"#fff":p.acc}"/>`).join("") + `<path d="M94 110v50M226 110v50" stroke="#78350f" stroke-width="5"/><rect x="86" y="128" width="148" height="32" rx="4" fill="#92400e"/>` + [[106,"#ef4444"],[124,"#f97316"],[142,"#84cc16"],[160,"#ef4444"],[178,"#facc15"],[196,"#a855f7"],[214,"#84cc16"]].map(([x,c])=>`<circle cx="${x}" cy="122" r="9" fill="${c}"/>`).join("")}),
+  music: p => ({fg: note(96,100,p.band) + note(140,74,p.acc) + note(232,88,"#f59e0b") + `<ellipse cx="180" cy="128" rx="34" ry="10" fill="#fef3c7"/><path d="M146 128v26a34 10 0 0 0 68 0v-26" fill="#dc2626"/><path d="M146 136l68 20M214 136l-68 20" stroke="#fde68a" stroke-width="2"/><path d="M166 118l-22-28M196 118l20-30" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>`}),
+  trail: p => ({fg: `<path d="M110 200Q176 172 152 150T196 118" stroke="#e7c98d" stroke-width="22" fill="none" stroke-linecap="round"/>` + tri(56,128,24,p.tree) + tri(92,140,18,"#2f855a") + tri(236,124,26,p.tree) + tri(276,138,20,"#2f855a") + tri(208,108,14,"#3f9b4f")}),
+  pumpkin: p => ({fg: `<rect x="44" y="132" width="62" height="28" rx="4" fill="#eab308"/><path d="M44 142h62M44 152h62" stroke="#a16207" stroke-width="2"/>` + pk(140,146,16) + pk(184,150,12) + pk(228,144,19) + pk(84,124,10) + pk(270,156,9)}),
+  orchard: p => ({fg: `<rect x="150" y="96" width="18" height="64" fill="#7c4a1e"/><circle cx="159" cy="78" r="44" fill="#3f9b4f"/><circle cx="124" cy="92" r="26" fill="#3f9b4f"/><circle cx="196" cy="92" r="26" fill="#3f9b4f"/>` + [[140,64],[176,60],[160,92],[122,96],[198,98],[184,80],[132,80]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="6" fill="#dc2626"/>`).join("") + `<path d="M222 140h44l-6 22h-32z" fill="#b45309"/><path d="M226 140q18-22 36 0" stroke="#b45309" stroke-width="4" fill="none"/><circle cx="236" cy="138" r="6" fill="#dc2626"/><circle cx="250" cy="137" r="6" fill="#ef4444"/>`}),
+  cafe: p => ({fg: `<rect x="70" y="140" width="180" height="10" rx="4" fill="#92400e"/><path d="M90 150v14M230 150v14" stroke="#92400e" stroke-width="6"/><rect x="110" y="104" width="38" height="36" rx="6" fill="#fff"/><path d="M148 112q16 6 0 18" stroke="#fff" stroke-width="5" fill="none"/><rect x="176" y="112" width="32" height="28" rx="6" fill="${p.acc}"/><path d="M208 118q13 5 0 14" stroke="${p.acc}" stroke-width="4" fill="none"/><path d="M122 96q-8-12 0-22t0-22M136 96q-8-12 0-22M190 104q-7-10 0-18" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>`}),
+  lights: p => ({bg: `<rect width="320" height="200" fill="#122046"/>` + [[30,20],[80,40],[140,16],[200,34],[290,22],[250,60],[110,64]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.8" fill="#fff"/>`).join("") + `<path d="M0 160Q160 140 320 160V200H0Z" fill="#eef4fb"/>`,
+    fg: `<path d="M0 50Q40 78 80 50T160 50T240 50T320 50" stroke="#94a3b8" stroke-width="2" fill="none"/>` + Array.from({length:12},(_, i)=>{const x=14+i*26,y=50+Math.sin((x/80)*Math.PI)*14;return `<circle cx="${x}" cy="${y+8}" r="6" fill="${["#ef4444","#facc15","#22c55e","#38bdf8"][i%4]}"/>`}).join("") + `<path d="M160 70L120 150h80Z" fill="#166534"/>` + [[150,104,"#facc15"],[170,124,"#ef4444"],[140,136,"#38bdf8"],[178,144,"#facc15"]].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="4.5" fill="${c}"/>`).join("") + `<path d="M160 60l4 9h9l-7 6 3 9-9-6-9 6 3-9-7-6h9z" fill="#facc15"/>`}),
+  snow: p => ({fg: tri(60,126,22,p.tree) + tri(266,132,20,p.tree) + `<circle cx="160" cy="138" r="26" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><circle cx="160" cy="100" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><circle cx="160" cy="70" r="14" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><rect x="146" y="50" width="28" height="6" fill="#1f2937"/><rect x="151" y="34" width="18" height="18" fill="#1f2937"/><path d="M142 84h36l-6 6h8v14h-8" fill="none" stroke="${p.acc}" stroke-width="7" stroke-linecap="round"/><circle cx="155" cy="67" r="2" fill="#111"/><circle cx="165" cy="67" r="2" fill="#111"/><path d="M160 72l12 3-12 2z" fill="#f97316"/>`}),
+  home: p => ({fg: `<rect x="110" y="96" width="100" height="62" fill="#fef3c7"/><path d="M98 100L160 54L222 100Z" fill="${p.band}"/><rect x="186" y="58" width="14" height="26" fill="#9a3412"/><rect x="148" y="118" width="24" height="40" rx="3" fill="#9a3412"/><rect x="120" y="110" width="20" height="18" rx="2" fill="#facc15"/><rect x="180" y="110" width="20" height="18" rx="2" fill="#facc15"/><path d="M193 46c-6-8-18-2-10 8l10 9 10-9c8-10-4-16-10-8z" fill="${p.acc}"/>`})
+};
+function art(kind, p, photo) {
+  if (okPhoto(photo)) return `<img src="${photo}" alt="">`;
+  const id = "g" + (gid++);
+  const r = (ART[kind] || ART.park)(p);
+  const bg = r.bg !== undefined ? r.bg :
+    `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.sky[0]}"/><stop offset="1" stop-color="${p.sky[1]}"/></linearGradient></defs><rect width="320" height="200" fill="url(#${id})"/><circle cx="268" cy="44" r="20" fill="${p.sun}"/><path d="M0 146Q80 118 160 142T320 134V200H0Z" fill="${p.g2}"/><path d="M0 164Q100 144 200 160T320 156V200H0Z" fill="${p.g1}"/>`;
+  return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${bg}${r.fg}</svg>`;
 }
 
-const views = {
-  outings(){ return outingsView(); },
-  calendar() {
-    const events = [...state.events].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-    return `<form onsubmit="addEvent(event)">
-      <input name="title" placeholder="Event (e.g. Soccer practice)" required>
-      <input name="date" type="date" required><input name="time" type="time">
-      <select name="who">${memberOptions(true)}</select>
-      <button class="btn">Add</button></form>` +
-      (events.map(e => `<div class="card row"><div class="grow"><b>${esc(e.title)}</b>
-        <div class="muted">${esc(e.date)} ${esc(e.time || "")} · ${dot(e.who)}</div></div>
-        <button class="x" onclick="del('events','${e.id}')">✕</button></div>`).join("") || '<p class="muted">No events yet.</p>');
-  },
-  chores() {
-    const pts = state.members.map(m => `<div class="card"><b>${state.chores.filter(c => c.done && c.who === m.id).length * 10}</b>
-      <span class="dot" style="background:${m.color}"></span> ${esc(m.name)}</div>`).join("");
-    return `<div class="score">${pts}</div>
-      <form onsubmit="addChore(event)"><input name="title" placeholder="Chore (e.g. Take out trash)" required>
-      <select name="who">${memberOptions(false)}</select><button class="btn">Add</button></form>` +
-      (state.chores.map(c => `<div class="card row"><input type="checkbox" ${c.done ? "checked" : ""} onchange="toggle('chores','${c.id}')">
-        <div class="grow"><span class="${c.done ? "done" : ""}">${esc(c.title)}</span>
-        <div class="muted">${dot(c.who)} · 10 pts</div></div>
-        <button class="x" onclick="del('chores','${c.id}')">✕</button></div>`).join("") || '<p class="muted">No chores yet. Add family members first!</p>');
-  },
-  shopping() {
-    return `<form onsubmit="addItem(event)"><input name="title" placeholder="Add item (e.g. Milk)" required><button class="btn">Add</button></form>` +
-      (state.shopping.map(i => `<div class="card row"><input type="checkbox" ${i.done ? "checked" : ""} onchange="toggle('shopping','${i.id}')">
-        <span class="grow ${i.done ? "done" : ""}">${esc(i.title)}</span>
-        <button class="x" onclick="del('shopping','${i.id}')">✕</button></div>`).join("") || '<p class="muted">List is empty.</p>') +
-      (state.shopping.some(i => i.done) ? '<button class="btn" onclick="clearDone()">Clear checked</button>' : "");
-  },
-  family() {
-    return `<form onsubmit="addMember(event)"><input name="name" placeholder="Name (e.g. Mom)" required><button class="btn">Add</button></form>` +
-      (state.members.map(m => `<div class="card row"><span class="dot" style="background:${m.color}"></span>
-        <span class="grow">${esc(m.name)}</span><button class="x" onclick="del('members','${m.id}')">✕</button></div>`).join("") ||
-        '<p class="muted">Start by adding your wife and sons.</p>');
-  }
-};
-
-
-const D = (icon,title,q,tip) => ({icon,title,q,tip});
+// ---------- activities ----------
+const D = (k, title, q, tip) => ({k, title, q, tip});
+const LIB = [D("library","Library toddler story time","library story time toddlers","Easy even with a newborn. Songs, a book, and play time after."),D("library","Bookstore story hour","bookstore children story hour","Usually free and drop-in. Let him pick one board book."),D("music","Baby & me music class","baby music class","Look for drop-in days or a free trial class.")];
 const SEASONS = {
- spring:{ name:"Spring 🌷", days:[
-  [D("📚","Library toddler story time","library story time toddlers","Great first outing with a newborn too. Parents chat after, easy to meet other moms."),D("📖","Bookstore story hour","bookstore children story hour","Many indoor, free, and drop-in."),D("🎵","Baby & me music class","baby music class","Look for drop-in or free trial classes.")],
-  [D("🧸","Children's museum","children's museum","Toddler areas are usually separate and gentle."),D("🔬","Science center (toddler zone)","science center kids","Check for a under-3 area."),D("🎨","Art museum family morning","art museum family programs","Many have free stroller-friendly mornings.")],
-  [D("🦒","Zoo","zoo","Go in the morning when animals are active and it's cooler."),D("🐐","Petting zoo / animal sanctuary","petting zoo","Spring babies on display."),D("🌸","Botanical garden","botanical garden","Flat paths, great for strollers.")],
-  [D("🐠","Aquarium","aquarium","Dim, calm, and toddlers love the tanks."),D("🥾","Nature center walk","nature center kids","Short trails; baby-wearing works well."),D("🛝","Playground picnic","playground near me","Pack a picnic and invite another mom.")],
-  [D("🐑","Farm visit (baby animals)","farm visit kids","Lambs and chicks in spring."),D("🌷","Tulip / flower farm","flower farm u-pick","Check bloom dates before you go."),D("🥕","Farmers market","farmers market","Often has kids' activities and music.")]],
-  nat:["🌸 Cherry blossoms in Washington, DC","🏞️ National Park wildflowers (Junior Ranger programs)","🏛️ Smithsonian museums (free, stroller-friendly)"] },
- summer:{ name:"Summer ☀️", days:[
-  [D("📚","Library summer reading event","library summer reading toddlers","Free and air-conditioned."),D("📖","Bookstore story hour","bookstore children story hour","Indoor break from the heat."),D("🎵","Free concert in the park","free outdoor concert kids","Bring a blanket.")],
-  [D("💦","Splash pad","splash pad","Bring swim diapers and a change of clothes."),D("🏊","Baby swim / shallow pool","public pool toddler swim","Check family swim hours."),D("🧸","Children's museum","children's museum","Cool and indoors on hot days.")],
-  [D("🦒","Zoo (go early)","zoo","Arrive at opening to beat the heat."),D("🐐","Petting zoo","petting zoo","Shaded and easy."),D("🌳","Shady park & playground","shaded playground","Pick one with trees.")],
-  [D("🏖️","Beach / lake day","beach lake kids","Shade tent, sunscreen, and snacks."),D("🐠","Aquarium","aquarium","Cool escape on a very hot day."),D("🥾","Early morning nature walk","nature trail stroller friendly","Go before it gets hot.")],
-  [D("🍓","U-pick berry farm","u-pick berry farm","Go early; toddlers love it."),D("🐄","Farm visit","farm visit kids","Check hours and shade."),D("🥕","Farmers market","farmers market","Fresh fruit snack included.")]],
-  nat:["🏞️ National Park Junior Ranger badge","🏖️ A national seashore or lakeshore day","🚂 Train or heritage railway ride"] },
- fall:{ name:"Fall 🍂", days:[
-  [D("📚","Library toddler story time","library story time toddlers","Easy first outing with a newborn too."),D("📖","Bookstore story hour","bookstore children story hour","Indoor and drop-in."),D("🎵","Baby & me music class","baby music class","Great for meeting parents.")],
-  [D("🧸","Children's museum","children's museum","Toddler areas are usually separate."),D("🔬","Science center","science center kids","Check for an under-3 area."),D("🎨","Art museum family morning","art museum family programs","Often stroller friendly.")],
-  [D("🎃","Pumpkin patch","pumpkin patch","Great photo spot. Mid-week is quieter."),D("🦒","Zoo","zoo","Cooler weather means active animals."),D("🌽","Fall festival","fall festival kids","Check for toddler-friendly activities.")],
-  [D("🍎","Apple orchard","apple orchard u-pick","Cider and donuts too."),D("🍂","Leaf-peeping nature trail","nature trail stroller friendly","Wide paved paths work best."),D("🐠","Aquarium","aquarium","A good rainy-day fallback.")],
-  [D("🌽","Farm & hay ride","farm hayride kids","Check for toddler-sized rides."),D("🐄","Farm visit","farm visit kids","Animals and tractors."),D("🥕","Farmers market","farmers market","Seasonal produce and music.")]],
-  nat:["🍁 Fall foliage drive (Great Smoky Mountains, New England)","🎃 Famous pumpkin festivals","🦌 National wildlife refuge visit"] },
- winter:{ name:"Winter ❄️", days:[
-  [D("📚","Library toddler story time","library story time toddlers","Warm and free."),D("📖","Bookstore story hour","bookstore children story hour","Cozy indoor spot."),D("🎵","Baby & me music class","baby music class","Meet other parents.")],
-  [D("🤸","Indoor play gym","indoor play gym toddlers","Look for open-play toddler hours."),D("🧸","Children's museum","children's museum","Warm and engaging."),D("🛝","Mall or indoor play area","indoor playground","Free and easy for a quick outing.")],
-  [D("🏛️","Museum","museum family kids","Stroller friendly and heated."),D("🔬","Science center","science center kids","Check for an under-3 area."),D("🐠","Aquarium","aquarium","Warm, with calm lights.")],
-  [D("🌴","Conservatory / greenhouse","conservatory botanical garden","A warm tropical escape."),D("🦒","Zoo (indoor exhibits)","zoo","Bundle up and visit indoor exhibits."),D("🥾","Bundled-up park walk","park walk","Short and sweet. Hot cocoa after.")],
-  [D("☕","Parent playdate at a cafe","kid friendly cafe","Invite a mom friend from story time."),D("🏊","Indoor pool","indoor pool family swim","Warm water and fun."),D("🎄","Holiday lights / events","holiday lights kids","Check for toddler hours.")]],
-  nat:["🎄 Zoo lights events around the country","⛷️ A snow-day trip (sledding, snow play)","🏛️ Smithsonian & museum days in DC"] }
+ spring:[LIB,
+  [D("blocks","Children's museum","children's museum","Toddler zones are usually gated and gentle. Go right at opening."),D("museum","Science center toddler zone","science center kids","Ask at the desk for the under-3 area."),D("museum","Art museum family morning","art museum family programs","Many have free, stroller-friendly mornings.")],
+  [D("zoo","Zoo morning","zoo","Animals are most active early, and it's cooler."),D("farm","Petting zoo","petting zoo","Spring babies (goats, lambs) are out. Pack hand wipes."),D("flowers","Botanical garden","botanical garden","Flat paths are great for the stroller.")],
+  [D("fish","Aquarium","aquarium","Dim and calm. Toddlers love standing at the big tanks."),D("trail","Nature center walk","nature center kids","Short trails. Baby-wearing works well."),D("park","Playground picnic","playground","Pack a picnic and invite a mom from story time.")],
+  [D("farm","Farm visit: baby animals","farm visit kids","Lambs and chicks in spring. Check hours first."),D("flowers","Tulip & flower farm","flower farm u-pick","Check bloom dates before you go."),D("market","Farmers market","farmers market","Often has music and kids' activities.")]],
+ summer:[
+  [D("library","Library summer reading event","library summer reading toddlers","Free and air-conditioned."),LIB[1],D("music","Free concert in the park","free outdoor concert kids","Bring a blanket and snacks.")],
+  [D("splash","Splash pad","splash pad","Swim diapers, sunscreen, and a change of clothes."),D("pool","Family swim time","public pool toddler swim","Check the family or toddler swim hours."),D("blocks","Children's museum","children's museum","Cool and indoors on hot days.")],
+  [D("zoo","Zoo (go early)","zoo","Arrive at opening to beat the heat."),D("farm","Petting zoo","petting zoo","Shaded and easy for little legs."),D("park","Shady park & playground","shaded playground","Pick one with big trees.")],
+  [D("beach","Lake or beach day","lake beach kids","Shade tent, sunscreen, and lots of snacks."),D("fish","Aquarium","aquarium","Cool escape on a very hot day."),D("trail","Early nature walk","nature trail stroller friendly","Go before it gets hot.")],
+  [D("orchard","U-pick berry farm","u-pick berry farm","Go early. Toddlers love picking (and eating)."),D("farm","Farm visit","farm visit kids","Check for shade and hours."),D("market","Farmers market","farmers market","Fresh fruit snack included.")]],
+ fall:[LIB,
+  [D("blocks","Children's museum","children's museum","Toddler areas are usually separate."),D("museum","Science center","science center kids","Check for an under-3 area."),D("museum","Art museum family morning","art museum family programs","Often stroller friendly.")],
+  [D("pumpkin","Pumpkin patch","pumpkin patch","Great photo spot. Mid-week is quieter."),D("zoo","Zoo","zoo","Cool weather means active animals."),D("pumpkin","Fall festival","fall festival kids","Look for toddler-friendly activities.")],
+  [D("orchard","Apple orchard","apple orchard u-pick","Cider and donuts too."),D("trail","Leaf-peeping nature trail","nature trail stroller friendly","Wide paved paths work best."),D("fish","Aquarium","aquarium","A good rainy-day fallback.")],
+  [D("farm","Farm & hay ride","farm hayride kids","Check for toddler-sized rides."),D("farm","Farm visit","farm visit kids","Animals and tractors."),D("market","Farmers market","farmers market","Seasonal produce and music.")]],
+ winter:[LIB,
+  [D("blocks","Indoor play gym","indoor play gym toddlers","Look for toddler open-play hours."),D("blocks","Children's museum","children's museum","Warm and engaging."),D("blocks","Indoor playground","indoor playground","Free and easy for a quick outing.")],
+  [D("museum","Museum morning","museum family kids","Stroller friendly and heated."),D("museum","Science center","science center kids","Check for an under-3 area."),D("fish","Aquarium","aquarium","Warm, with calm lights.")],
+  [D("flowers","Conservatory / greenhouse","conservatory botanical garden","A warm, green escape from winter."),D("zoo","Zoo indoor exhibits","zoo","Bundle up and head for the indoor houses."),D("snow","Bundled-up park walk","park walk","Short and sweet. Hot cocoa after.")],
+  [D("cafe","Mom playdate at a cafe","kid friendly cafe","Invite a mom friend from story time."),D("pool","Indoor pool","indoor pool family swim","Warm water fun on a cold day."),D("lights","Holiday lights & events","holiday lights kids","Check for early, toddler-friendly hours.")]]
 };
-const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday"];
-const SOCIAL=[
+const NAT = {
+  spring:["Cherry blossoms in Washington, DC","National Park wildflowers and Junior Ranger programs","Smithsonian museums (free and stroller-friendly)"],
+  summer:["A National Park Junior Ranger badge","A national seashore or lakeshore day","A heritage train ride"],
+  fall:["A fall foliage drive","A big pumpkin festival","A national wildlife refuge visit"],
+  winter:["A zoo lights event","A snow-play day trip","Museum days in Washington, DC"]
+};
+const SOCIAL = [
  "Stay 10 minutes after. Ask another mom how old her little one is. It's the easiest opener.",
  "Look for the parent who comes back every week. Regulars become friends.",
  "Ask a mom if she'd like to meet here again next week at the same time.",
  "Compliment something (a carrier, a stroller, a snack idea) and ask where she got it.",
- "Ask the staff or librarian if there's a regular parents' group or playgroup.",
- "Swap numbers with one parent you clicked with, then save her under Mom friends below.",
+ "Ask the staff if there's a regular parents' group or playgroup.",
+ "Swap numbers with one parent you clicked with, and save her under Parents.",
  "Sit near the toddler area. Kids playing side by side start the chat for you.",
- "Mention you have a baby on the way or a newborn. Other moms love to share tips."];
-const GROUPS=[
- ["🤱","MOPS / moms groups","MOPS moms group"],
- ["⛪","Church moms & toddler groups","church moms group toddlers"],
- ["📚","Library baby & toddler groups","library baby toddler playgroup"],
- ["🛝","Toddler playgroups","toddler playgroup"],
- ["🍼","Breastfeeding & new-mom circles","new moms support group"],
- ["📅","Meetup mom groups","meetup moms group"]];
-function autoSeason(d){ const m=d.getMonth(); return m>=2&&m<=4?"spring":m>=5&&m<=7?"summer":m>=8&&m<=10?"fall":"winter"; }
-const mapsUrl=(q,o)=>"https://www.google.com/maps/search/"+encodeURIComponent(q+" near "+o.city+", "+o.st);
-const mapsPlace=(q,o)=>"https://www.google.com/maps/search/"+encodeURIComponent(q+", "+o.city+", "+o.st);
-const webUrl=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
-function outingsView(){
-  const o=state.outings;
-  if(!o.city||!o.st) return `<div class="card"><h3 style="margin-top:0">Where are you based?</h3>
-    <p class="muted">Used to find places near you, such as libraries, museums, zoos, and farms. It stays on this device.</p>
-    <form onsubmit="saveLoc(event)"><input name="city" placeholder="City" required><input name="st" placeholder="State" required><button class="btn">Save</button></form></div>`;
-  const now=new Date(); const mon=new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7)+o.week*7); mon.setHours(12,0,0,0);
-  const sk=o.season==="auto"?autoSeason(mon):o.season; const S=SEASONS[sk];
-  const wkNum=Math.floor(mon.getTime()/(7*864e5));
-  const fmt=d=>d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
-  const favsFor=(i)=>o.favs.filter(p=>(p.day==="any"||+p.day===i)&&(p.season==="all"||p.season===sk))
-    .map(p=>({icon:"⭐",title:p.name,q:p.name,tip:p.note||"One of your saved favorites.",fav:true}));
-  window._wk=[];
-  const cards=DAYS.map((name,i)=>{
-    const dt=new Date(mon); dt.setDate(mon.getDate()+i); const key=dt.toISOString().slice(0,10);
-    const opts=[...S.days[i],...favsFor(i)]; const a=opts[((wkNum+i+(o.swap[key]||0))%opts.length+opts.length)%opts.length];
-    const done=!!o.done[key]; const soc=SOCIAL[(wkNum+i)%SOCIAL.length];
-    window._wk[i]={title:a.title,day:name,date:fmt(dt)};
-    const near=a.fav?mapsPlace(a.q,o):mapsUrl(a.q,o);
-    return `<div class="card day"><div class="ic">${a.icon}</div><div class="grow" style="flex:1">
-      <div class="muted">${name} · ${fmt(dt)}</div><h3 class="${done?'done':''}">${esc(a.title)}${a.fav?'<span class="fav">Favorite</span>':''}</h3>
-      <div class="tip">💡 ${esc(a.tip)}</div>
-      <div class="social">👋 <b>Meet parents:</b> ${esc(soc)}</div>
-      <div class="links">
-        <a target="_blank" rel="noopener" href="${near}">📍 ${a.fav?"Directions":"Near me (≤20 mi)"}</a>
-        ${a.fav?"":`<a target="_blank" rel="noopener" href="${webUrl(a.q+' within 30 miles of '+o.city+', '+o.st)}">🚗 20-30 mi</a>
-        <a target="_blank" rel="noopener" href="${webUrl('best '+a.q+' for toddlers in '+o.st+' '+sk)}">🗺️ Statewide</a>`}
-      </div>
-      <div class="acts">
-        <label class="row"><input type="checkbox" ${done?"checked":""} onchange="toggleOuting('${key}')"> We went!</label>
-        <button onclick="invite(${i})">💬 Invite a mom</button>
-        <button onclick="swapDay('${key}')">🔀 Swap</button>
-      </div>
-    </div></div>`}).join("");
-  const weekend=`<div class="card home">🏠 Saturday & Sunday: family home days<br><span class="muted">Everyone together, no plans.</span></div>`;
-  return `<div class="wk"><button class="btn small" onclick="state.outings.week--;save()">← Prev</button>
-      <b>Week of ${fmt(mon)} · ${S.name}</b><button class="btn small" onclick="state.outings.week++;save()">Next →</button></div>
-    <div class="card muted">📍 ${esc(o.city)}, ${esc(o.st)} · Each weekday has a different outing, and the options rotate every week so it never gets stale. They're ideas, and she doesn't have to do them. Weeks with a newborn can be easy: library, park walk, or a cafe playdate.</div>`
-    +cards+weekend+
-    `<div class="card"><details><summary>🇺🇸 Nationwide bucket-list ideas for ${S.name}</summary><ul>${S.nat.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>
-      <a target="_blank" rel="noopener" href="${webUrl(sk+' family events kids '+o.st)}">🗺️ ${S.name} family events in ${esc(o.st)}</a></details></div>
-    ${parentsCard(o)}
-    ${favsCard(o)}
-    <div class="card"><details><summary>⚙️ Settings</summary>
-      <form onsubmit="saveLoc(event)" style="margin-top:10px"><input name="city" value="${esc(o.city)}" required><input name="st" value="${esc(o.st)}" required><button class="btn">Update place</button></form>
-      <select onchange="state.outings.season=this.value;save()">${["auto",...Object.keys(SEASONS)].map(k=>`<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Season: automatic":SEASONS[k].name}</option>`).join("")}</select></details></div>`;
-}
-function parentsCard(o){
-  return `<div class="card"><details><summary>👋 Meet other parents (${o.friends.length} mom friend${o.friends.length===1?"":"s"})</summary>
-    <p class="muted">Recurring groups are the fastest way to make mom friends because you see the same faces each week.</p>
-    <div class="links">${GROUPS.map(g=>`<a target="_blank" rel="noopener" href="${webUrl(g[2]+' near '+o.city+', '+o.st)}">${g[0]} ${g[1]}</a>`).join("")}</div>
-    <h4 style="margin:14px 0 6px">💛 Mom friends</h4>
-    <form onsubmit="addFriend(event)"><input name="name" placeholder="Name" required><input name="note" placeholder="Where you met / kids' ages"><button class="btn">Add</button></form>
-    ${o.friends.map(p=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--line)"><div class="grow"><b>${esc(p.name)}</b><div class="muted">${esc(p.note||"")}</div></div>
-      <button class="x" onclick="delO('friends','${p.id}')">✕</button></div>`).join("")||'<p class="muted">No one yet. Add a mom you meet so you remember to invite her.</p>'}
-  </details></div>`;
-}
-function favsCard(o){
-  const dayOpt=`<option value="any">Any weekday</option>`+DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join("");
-  const sOpt=`<option value="all">All year</option>`+Object.keys(SEASONS).map(k=>`<option value="${k}">${SEASONS[k].name}</option>`).join("");
-  return `<div class="card"><details><summary>⭐ Our favorite places (${o.favs.length})</summary>
-    <p class="muted">Save places you love. They join the rotation for that day and season, marked ⭐.</p>
-    <form onsubmit="addFav(event)"><input name="name" placeholder="Place (e.g. Lebanon Library)" required>
-      <select name="day">${dayOpt}</select><select name="season">${sOpt}</select>
-      <input name="note" placeholder="Note (e.g. story time 10:30)"><button class="btn">Save</button></form>
-    ${o.favs.map(p=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--line)"><div class="grow"><b>⭐ ${esc(p.name)}</b>
-      <div class="muted">${p.day==="any"?"Any weekday":DAYS[+p.day]} · ${p.season==="all"?"All year":SEASONS[p.season].name}${p.note?" · "+esc(p.note):""}</div></div>
-      <button class="x" onclick="delO('favs','${p.id}')">✕</button></div>`).join("")}
-  </details></div>`;
-}
-function addFav(e){ state.outings.favs.push({id:uid(),...f(e)}); save(); }
-function addFriend(e){ state.outings.friends.push({id:uid(),...f(e)}); save(); }
-function delO(list,id){ state.outings[list]=state.outings[list].filter(x=>x.id!==id); save(); }
-function swapDay(k){ state.outings.swap[k]=(state.outings.swap[k]||0)+1; save(); }
-function invite(i){
-  const w=window._wk[i]; const msg=`Hi! We're going to ${w.title} on ${w.day} (${w.date}). Want to bring the kids and join us?`;
-  const t=document.getElementById("toast"); t.querySelector("p").textContent=msg; t.style.display="block";
-  const st=t.querySelector(".muted");
-  try { navigator.clipboard.writeText(msg).then(()=>st.textContent="✅ Copied! Paste it into a text to her.",()=>st.textContent="Press and hold the message to copy it."); }
-  catch(e){ st.textContent="Press and hold the message to copy it."; }
-}
-function saveLoc(e){ const v=f(e); state.outings.city=v.city.trim(); state.outings.st=v.st.trim(); save(); }
-function toggleOuting(k){ state.outings.done[k]=!state.outings.done[k]; save(); }
+ "Mention the new baby. Other moms love to share tips."];
+const GROUPS = [["MOPS & moms groups","MOPS moms group"],["Church moms & toddlers","church moms group toddlers"],["Library baby groups","library baby toddler playgroup"],["Toddler playgroups","toddler playgroup"],["New-mom circles","new moms support group"],["Meetup mom groups","meetup moms group"]];
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const autoSeason = d => { const m = d.getMonth(); return m>=2&&m<=4?"spring":m>=5&&m<=7?"summer":m>=8&&m<=10?"fall":"winter"; };
+const where = () => o.city + ", " + o.st;
+const maps = q => "https://www.google.com/maps/search/" + encodeURIComponent(q + " near " + where());
+const mapsPlace = q => "https://www.google.com/maps/search/" + encodeURIComponent(q + ", " + where());
+const web = q => "https://www.google.com/search?q=" + encodeURIComponent(q);
+const fmt = d => d.toLocaleDateString(undefined, {month:"short", day:"numeric"});
 
-const f = e => { e.preventDefault(); return Object.fromEntries(new FormData(e.target)); };
-function addEvent(e) { state.events.push({ id: uid(), ...f(e) }); save(); }
-function addChore(e) { state.chores.push({ id: uid(), done:false, ...f(e) }); save(); }
-function addItem(e) { state.shopping.push({ id: uid(), done:false, ...f(e) }); save(); }
-function addMember(e) { state.members.push({ id: uid(), name: f(e).name, color: COLORS[state.members.length % COLORS.length] }); save(); }
-function del(list, id) { state[list] = state[list].filter(x => x.id !== id); save(); }
-function toggle(list, id) { const x = state[list].find(x => x.id === id); x.done = !x.done; save(); }
-function clearDone() { state.shopping = state.shopping.filter(i => !i.done); save(); }
+function weekData() {
+  const now = new Date(); const mon = new Date(now); mon.setHours(12,0,0,0); mon.setDate(now.getDate() - ((now.getDay()+6)%7) + o.week*7);
+  const sk = o.season === "auto" ? autoSeason(mon) : o.season; const p = PAL[sk];
+  const wk = Math.floor(mon.getTime() / (7*864e5));
+  const todayKey = new Date(new Date().setHours(12,0,0,0)).toISOString().slice(0,10);
+  const days = DAYS.map((name, i) => {
+    const dt = new Date(mon); dt.setDate(mon.getDate() + i); const key = dt.toISOString().slice(0,10);
+    if (i > 4) return {i, name, dt, key, home:true, a:{k:"home", title:"Home together", tip:"Everyone together, no plans. Rest up for next week."}};
+    const favs = o.favs.filter(f => (f.day === "any" || +f.day === i) && (f.season === "all" || f.season === sk))
+      .map(f => ({k:"park", title:f.name, q:f.name, tip:f.note || "One of your saved favorites.", fav:true, photo:f.photo}));
+    const opts = [...SEASONS[sk][i], ...favs];
+    const n = opts.length, a = opts[(((wk + i + (o.swap[key]||0)) % n) + n) % n];
+    return {i, name, dt, key, a, soc: SOCIAL[(wk+i) % SOCIAL.length]};
+  });
+  return {mon, sk, p, days, todayKey};
+}
 
+// ---------- icons ----------
+const IC = {
+  week:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  parents:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.8-4 3.5-6 6.5-6s5.7 2 6.5 6M15 14.5c3 0 5.4 1.8 6 5"/></svg>',
+  favs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.8-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1L3.2 9.4l6.1-.8z"/></svg>',
+  family:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
+};
+const TABS = [["week","This week"],["parents","Parents"],["favs","Favorites"],["family","Family"],["settings","Settings"]];
+
+// ---------- views ----------
+function setupView(p) {
+  return `<div class="band" style="background:${p.band}"><div class="wrap"><h1 style="font-size:34px">Little Adventures</h1><div class="sub">A new outing for every weekday</div></div></div>
+  <main><div class="page"><div class="hero">${art("zoo", p)}</div><div class="body"><h2>Where are you based?</h2>
+  <p class="mut">Used to find libraries, museums, zoos and farms near you. It stays on this phone.</p>
+  <form data-f="loc"><div class="two"><input name="city" placeholder="City" required autocomplete="address-level2"><input name="st" placeholder="State" required autocomplete="address-level1"></div><button class="btn">Let's go</button></form></div></div></main>`;
+}
+function weekView() {
+  const W = weekData(), p = W.p;
+  if (!o.city || !o.st) return setupView(p);
+  if (sel === null) { const t = W.days.findIndex(d => d.key === W.todayKey); sel = t >= 0 ? t : 0; }
+  const d = W.days[sel], a = d.a;
+  const photo = o.photos[d.key] || a.photo;
+  const done = !!o.done[d.key];
+  const cells = W.days.map(x => `<button class="cell ${x.i===sel?"on":""} ${x.key===W.todayKey?"today":""}" data-pick="${x.i}" aria-label="${x.name}: ${esc(x.a.title)}">
+      <span class="dn">${x.name.slice(0,3)}</span><span class="dd">${x.dt.getDate()}</span>
+      <span class="th">${art(x.a.k, p, o.photos[x.key] || x.a.photo)}${o.done[x.key]?'<span class="ok">✓</span>':""}</span></button>`).join("");
+  const body = d.home ? `<div class="when">${d.name} · ${fmt(d.dt)}</div><h2 class="home-h">Home together</h2>
+      <p class="mut" style="font-size:16px">Saturdays and Sundays are family days at home. Everyone together, no plans needed.</p>
+      <div class="row"><label class="chip">Add a photo<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>${o.photos[d.key]?`<button class="chip" data-rmphoto="${d.key}">Remove photo</button>`:""}</div>`
+    : `<div class="when">${d.name} · ${fmt(d.dt)}</div><h2 class="${done?"strike":""}">${esc(a.title)}</h2>
+      <div class="note n1"><b>Good to know</b>${esc(a.tip)}</div>
+      <div class="note n2"><b>Meet other parents</b>${esc(d.soc)}</div>
+      <div class="row">
+        <a class="chip go" target="_blank" rel="noopener" href="${a.fav ? mapsPlace(a.q) : maps(a.q)}">${a.fav ? "Directions" : "Near us (20 mi)"}</a>
+        ${a.fav ? "" : `<a class="chip" target="_blank" rel="noopener" href="${web(a.q + " within 30 miles of " + where())}">20–30 mi</a>
+        <a class="chip" target="_blank" rel="noopener" href="${web("best " + a.q + " for toddlers in " + o.st + " " + W.sk)}">Statewide</a>`}
+      </div>
+      <div class="row">
+        <button class="chip ${done?"done":""}" data-done="${d.key}">${done ? "✓ We went!" : "We went!"}</button>
+        <button class="chip" data-invite="${sel}">Invite a mom</button>
+        <button class="chip" data-swap="${d.key}">Swap idea</button>
+        <label class="chip">${o.photos[d.key] ? "Change photo" : "Add a photo"}<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>
+        ${o.photos[d.key] ? `<button class="chip" data-rmphoto="${d.key}">Remove photo</button>` : ""}
+      </div>`;
+  const list = W.days.map(x => `<button class="item" data-pick="${x.i}" data-top="1"><span class="pic">${art(x.a.k, p, o.photos[x.key] || x.a.photo)}</span>
+      <span><span class="d">${x.name} · ${fmt(x.dt)}</span><br><span class="t">${esc(x.a.title)}</span></span>${o.done[x.key] ? '<span class="s">✓ Went</span>' : ""}</button>`).join("");
+  return `<div class="band" style="background:${p.band}"><div class="wrap">
+    <div class="top"><div><div class="sub">${p.name} · ${esc(where())}</div><h1>Week of ${fmt(W.mon)}</h1></div>
+    <div class="nav"><button data-wk="-1" aria-label="Previous week">‹</button><button data-wk="1" aria-label="Next week">›</button></div></div>
+    <div class="cal">${cells}</div></div></div>
+  <main>
+    <div class="page"><div class="hero ${anim?"anim":""}">${art(a.k, p, photo)}<span class="tag">${d.home ? "Family day" : p.name + " outing"}</span>${a.fav ? '<span class="tag fav">★ Favorite</span>' : ""}</div><div class="body">${body}</div></div>
+    <h3 class="sec">The whole week</h3><div class="list">${list}</div>
+    <h3 class="sec">Bucket list: ${p.name} trips</h3>
+    <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div>
+      <div class="row"><a class="chip go" target="_blank" rel="noopener" href="${web(W.sk + " family events kids " + o.st)}">${p.name} family events in ${esc(o.st)}</a></div></div>
+    <p class="mut" style="margin-top:18px">These are ideas, not a to-do list. With a newborn, easy weeks are perfect: library, a park walk, or a cafe playdate.</p>
+  </main>`;
+}
+function plainBand(title, sub, p) { return `<div class="band" style="background:${p.band}"><div class="wrap"><div class="sub">${sub}</div><h1>${title}</h1></div></div>`; }
+function parentsView() {
+  const p = weekData().p;
+  return plainBand("Meet other parents", "Mom friends make every outing better", p) + `<main>
+    <div class="card"><h2 style="font-size:22px">Recurring groups near you</h2><p class="mut">Seeing the same faces every week is the fastest way to make friends.</p>
+      <div class="grp">${GROUPS.map(g => `<a target="_blank" rel="noopener" href="${web(g[1] + " near " + where())}">${g[0]}</a>`).join("")}</div></div>
+    <div class="card"><h2 style="font-size:22px">Mom friends</h2><p class="mut">Save the moms you meet so you remember to invite them.</p>
+      <form data-f="friend"><input name="name" placeholder="Name" required><input name="note" placeholder="Where you met, kids' ages"><button class="btn">Add friend</button></form>
+      <div style="margin-top:10px">${o.friends.map(f => `<div class="li"><div class="g"><b>${esc(f.name)}</b><div class="mut">${esc(f.note)}</div></div><button class="x" data-del="friends:${esc(f.id)}" aria-label="Remove">✕</button></div>`).join("") || '<p class="mut">No one yet. Add the first mom you meet at story time.</p>'}</div></div>
+  </main>`;
+}
+function favsView() {
+  const p = weekData().p;
+  return plainBand("Our favorite places", "They join the weekly rotation", p) + `<main>
+    <div class="card"><h2 style="font-size:22px">Add a place you love</h2>
+      <form data-f="fav"><input name="name" placeholder="Place (e.g. Lebanon Community Library)" required>
+        <div class="two"><select name="day"><option value="any">Any weekday</option>${DAYS.slice(0,5).map((d,i)=>`<option value="${i}">${d}</option>`).join("")}</select>
+        <select name="season"><option value="all">All year</option>${Object.keys(PAL).map(k=>`<option value="${k}">${PAL[k].name}</option>`).join("")}</select></div>
+        <input name="note" placeholder="Note (e.g. story time Tue 10:30)">
+        <label class="mut">Photo (optional)<input type="file" name="photo" accept="image/*" style="padding-top:9px"></label>
+        <button class="btn">Save place</button></form></div>
+    <div class="card">${o.favs.map(f => `<div class="li"><span class="ph">${okPhoto(f.photo) ? `<img src="${f.photo}" alt="" style="width:100%;height:100%;object-fit:cover">` : art("park", p)}</span>
+      <div class="g"><b>★ ${esc(f.name)}</b><div class="mut">${f.day === "any" ? "Any weekday" : esc(DAYS[+f.day])} · ${PAL[f.season] ? PAL[f.season].name : "All year"}${f.note ? " · " + esc(f.note) : ""}</div></div>
+      <button class="x" data-del="favs:${esc(f.id)}" aria-label="Remove">✕</button></div>`).join("") || '<p class="mut">No favorites yet. When you find a spot you love, save it here and it will show up in the week.</p>'}</div>
+  </main>`;
+}
+const member = id => state.members.find(m => m.id === id);
+const COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#a855f7","#ec4899"];
+const mopts = all => (all ? '<option value="">Everyone</option>' : "") + state.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join("");
+const who = id => { const m = member(id); return m ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLORS.includes(m.color)?m.color:"#999"}"></span> ${esc(m.name)}` : "Everyone"; };
+function familyView() {
+  const p = weekData().p, t = state.ftab;
+  const seg = [["calendar","Calendar"],["chores","Chores"],["shopping","Shopping"],["members","Members"]].map(([k,l]) => `<button class="${t===k?"on":""}" data-ftab="${k}">${l}</button>`).join("");
+  let c = "";
+  if (t === "calendar") c = `<form data-f="event"><input name="title" placeholder="Event (e.g. Pediatrician)" required><div class="two"><input name="date" type="date" required><input name="time" type="time"></div><select name="who">${mopts(true)}</select><button class="btn">Add event</button></form>` +
+    ([...state.events].sort((a,b) => ((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||""))).map(e => `<div class="li"><div class="g"><b>${esc(e.title)}</b><div class="mut">${esc(e.date)} ${esc(e.time)} · ${who(e.who)}</div></div><button class="x" data-del2="events:${esc(e.id)}">✕</button></div>`).join("") || '<p class="mut">No events yet.</p>');
+  if (t === "chores") c = `<form data-f="chore"><input name="title" placeholder="Chore (e.g. Take out trash)" required><select name="who">${mopts(false)}</select><button class="btn">Add chore</button></form>` +
+    (state.chores.map(x => `<div class="li"><input class="chk" type="checkbox" ${x.done?"checked":""} data-tog="chores:${esc(x.id)}"><div class="g"><span class="${x.done?"strike":""}">${esc(x.title)}</span><div class="mut">${who(x.who)}</div></div><button class="x" data-del2="chores:${esc(x.id)}">✕</button></div>`).join("") || '<p class="mut">No chores yet.</p>');
+  if (t === "shopping") c = `<form data-f="item"><input name="title" placeholder="Add item (e.g. Diapers)" required><button class="btn">Add</button></form>` +
+    (state.shopping.map(x => `<div class="li"><input class="chk" type="checkbox" ${x.done?"checked":""} data-tog="shopping:${esc(x.id)}"><span class="g ${x.done?"strike":""}">${esc(x.title)}</span><button class="x" data-del2="shopping:${esc(x.id)}">✕</button></div>`).join("") || '<p class="mut">List is empty.</p>') +
+    (state.shopping.some(x => x.done) ? '<div class="row"><button class="chip" data-clear="1">Clear checked</button></div>' : "");
+  if (t === "members") c = `<form data-f="member"><input name="name" placeholder="Name (e.g. Mom)" required><button class="btn">Add</button></form>` +
+    (state.members.map(m => `<div class="li"><span class="g">${who(m.id)}</span><button class="x" data-del2="members:${esc(m.id)}">✕</button></div>`).join("") || '<p class="mut">Add your family.</p>');
+  return plainBand("Family", "Calendar, chores and shopping", p) + `<main><div class="seg">${seg}</div><div class="card">${c}</div></main>`;
+}
+function settingsView() {
+  const p = weekData().p, n = Object.keys(o.photos).length + o.favs.filter(f => f.photo).length;
+  return plainBand("Settings", "Location and season", p) + `<main><div class="card"><h2 style="font-size:22px">Your area</h2>
+    <form data-f="loc"><div class="two"><input name="city" value="${esc(o.city)}" placeholder="City" required><input name="st" value="${esc(o.st)}" placeholder="State" required></div><button class="btn">Update</button></form></div>
+    <div class="card"><h2 style="font-size:22px">Season</h2><p class="mut">Automatic follows the calendar. Pick one to preview other seasons.</p>
+      <select data-season="1">${["auto",...Object.keys(PAL)].map(k => `<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Automatic":PAL[k].name}</option>`).join("")}</select></div>
+    <div class="card"><h2 style="font-size:22px">On this phone</h2><p class="mut">Photos, favorites, friends and checkmarks are saved on this phone only (${n} photo${n===1?"":"s"} saved).</p></div></main>`;
+}
+
+const views = {week:weekView, parents:parentsView, favs:favsView, family:familyView, settings:settingsView};
+function render() {
+  gid = 0;
+  if (!PAL[o.season]) o.season = "auto";
+  const p = weekData().p;
+  document.documentElement.style.setProperty("--band", p.band);
+  document.getElementById("app").innerHTML = views[state.tab]();
+  document.getElementById("tabs").innerHTML = TABS.map(([k,l]) => `<button class="${state.tab===k?"on":""}" data-tab="${k}">${IC[k]}<span>${l}</span></button>`).join("");
+}
+
+// ---------- photos ----------
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = rej;
+    r.onload = () => { const img = new Image(); img.onerror = rej; img.onload = () => {
+      const s = Math.min(1, 720 / Math.max(img.width, img.height)); const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", .72)); }; img.src = r.result; };
+    r.readAsDataURL(file);
+  });
+}
+
+// ---------- events ----------
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
+  if (!b) return;
+  const ds = b.dataset;
+  if (ds.tab) { state.tab = ds.tab; save(); window.scrollTo(0,0); }
+  else if (ds.pick) { sel = +ds.pick; anim = true; render(); anim = false; if (ds.top) window.scrollTo({top:0, behavior:"smooth"}); }
+  else if (ds.wk) { o.week += +ds.wk; sel = 0; render(); }
+  else if (ds.done) { o.done[ds.done] = !o.done[ds.done]; save(); }
+  else if (ds.swap) { o.swap[ds.swap] = (o.swap[ds.swap]||0) + 1; save(); }
+  else if (ds.rmphoto) { delete o.photos[ds.rmphoto]; save(); }
+  else if (ds.del) { const [l, id] = ds.del.split(":"); o[l] = o[l].filter(x => x.id !== id); save(); }
+  else if (ds.del2) { const [l, id] = ds.del2.split(":"); state[l] = state[l].filter(x => x.id !== id); save(); }
+  else if (ds.ftab) { state.ftab = ds.ftab; save(); }
+  else if (ds.clear) { state.shopping = state.shopping.filter(x => !x.done); save(); }
+  else if (ds.invite) {
+    const d = weekData().days[+ds.invite];
+    const msg = `Hi! We're going to ${d.a.title} on ${d.name} (${fmt(d.dt)}). Want to bring the kids and join us?`;
+    toast(msg, "Copying…");
+    try { navigator.clipboard.writeText(msg).then(() => document.getElementById("tst").textContent = "Copied! Paste it into a text to her.", () => document.getElementById("tst").textContent = "Press and hold the message to copy it."); }
+    catch (err) { document.getElementById("tst").textContent = "Press and hold the message to copy it."; }
+  }
+});
+document.addEventListener("change", async e => {
+  const t = e.target;
+  if (t.dataset.photo && t.files[0]) { try { o.photos[t.dataset.photo] = await shrink(t.files[0]); save(); } catch (err) { toast("That photo couldn't be opened. Try another one.", ""); } }
+  else if (t.dataset.tog) { const [l, id] = t.dataset.tog.split(":"); const x = state[l].find(x => x.id === id); if (x) { x.done = !x.done; save(); } }
+  else if (t.dataset.season) { o.season = t.value; save(); }
+});
+document.addEventListener("submit", async e => {
+  const fm = e.target.closest("form[data-f]"); if (!fm) return;
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(fm)); const k = fm.dataset.f;
+  if (k === "loc") { o.city = v.city.trim(); o.st = v.st.trim(); state.tab = "week"; }
+  if (k === "friend") o.friends.push({id:uid(), name:v.name, note:v.note});
+  if (k === "fav") { let photo = ""; if (v.photo && v.photo.size) { try { photo = await shrink(v.photo); } catch (err) {} } o.favs.push({id:uid(), name:v.name, day:v.day, season:v.season, note:v.note, photo}); }
+  if (k === "event") state.events.push({id:uid(), title:v.title, date:v.date, time:v.time, who:v.who});
+  if (k === "chore") state.chores.push({id:uid(), title:v.title, who:v.who, done:false});
+  if (k === "item") state.shopping.push({id:uid(), title:v.title, done:false});
+  if (k === "member") state.members.push({id:uid(), name:v.name, color:COLORS[state.members.length % COLORS.length]});
+  save();
+});
 render();
+}
 </script>
 </body>
 </html>
