@@ -93,10 +93,11 @@ input,select{min-height:44px;padding:0 12px;border-radius:12px;border:2px solid 
 .spend{margin-top:14px;background:var(--soft);border-radius:16px;padding:12px 14px;gap:6px}.spend label{font-family:Fredoka,Nunito,sans-serif;font-weight:600}
 .sprow{display:flex;align-items:center;gap:8px}.sprow span{font-weight:800}
 .item .s2{margin-left:auto}.item .s2+.s{margin-left:0}
+.plc.pick{border-color:var(--band)}.plc.ev{border-style:dashed}
 .places{margin-top:18px}.places h3{font-size:20px;font-weight:600;margin-bottom:2px}
 .plc{border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:10px;background:var(--card)}
 .ph1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:16px}
-.pl{display:flex;gap:8px;font-size:14px;margin-top:5px;line-height:1.4}.pl span{flex:none;width:18px}
+.pl{display:flex;gap:8px;font-size:14px;margin-top:5px;line-height:1.4}.pl>span:first-child{flex:none;width:18px}
 .tog{display:flex;align-items:center;gap:10px;font-weight:800;min-height:44px}
 .chk{width:24px;height:24px;flex:none;min-height:0;accent-color:var(--band)}
 .strike{text-decoration:line-through;color:var(--mut)}
@@ -242,13 +243,19 @@ const ALL = ["spring","summer","fall","winter"];
 const P = (id, name, kinds, seasons, mi, addr, hours, c, costNote, tip, url, phone) => ({id, name, kinds, seasons, mi, addr, hours, c, costNote, tip, url, phone});
 const PLACES = [
  P("lcl","Lebanon Community Library",["library"],ALL,0,"125 N 7th St, Lebanon, PA 17046","Mon–Wed 8am–8pm · Thu 8am–7pm · Fri–Sat 8am–5pm · Sun closed",0,"Free",
-   "Smart Start Storytime for babies birth–2 (free, 30 min, no sign-up) is usually Tuesday mornings. Storytime for ages 3–6 is Wednesdays 10:30am.","https://lebanon.lclibs.org","717-273-7624"),
+   "Smart Start Storytime (babies birth–2) Tuesdays 9:30am, then Preschool Storytime 10:30am. Free, no sign-up.","https://lebanon.lclibs.org","717-273-7624"),
  P("afl","Annville Free Library",["library"],ALL,6,"216 E Main St, Annville, PA 17003","Mon–Thu 10am–8pm · Fri–Sat 10am–5pm (summer 10am–2pm) · Sun closed",0,"Free",
-   "Smart Start Storytime (birth–2) is on Wednesdays at 10:30am on many weeks. Check the calendar.","https://annville.lclibs.org","717-867-1802"),
+   "Smart Start Storytime (birth–2) Wednesdays 10:30am. Free.","https://annville.lclibs.org","717-867-1802"),
  P("ppl","Palmyra Public Library",["library"],ALL,9,"50 Landings Dr, Suite B, Annville, PA 17003","Mon–Wed 10am–7pm · Thu–Fri 10am–5pm · Sat 9am–4pm (July–Labor Day 9am–1pm)",0,"Free",
-   "Smart Start Storytime is usually Wednesdays 12:15pm. Little Explorers (storytime + sensory play) needs registration.","https://palmyra.lclibs.org","717-838-1347"),
+   "Smart Start Storytime Wednesdays 12:15pm (free). Little Explorers Mon & Thu 10:30am ($5, call to register).","https://palmyra.lclibs.org","717-838-1347"),
  P("mcl","Myerstown Community Library",["library"],ALL,8,"199 N College St, Myerstown, PA 17067","Mon–Tue 10am–5pm · Wed–Thu 10am–7pm · Fri 10am–4pm · Sat 9am–4pm",0,"Free",
    "Smart Start Storytime (birth–2) Thursdays 11:30am. Preschool Story Time Fridays 10:30am.","https://myerstown.lclibs.org","717-866-2800"),
+ P("rcl","Richland Community Library",["library"],ALL,12,"111 E Main St, Richland, PA 17087","Call for hours",0,"Free",
+   "Smart Start Storytime Thursdays 10:30am. Bookworm Buddies (stories for little readers) Thursdays 1pm.","https://richland.lclibs.org",""),
+ P("mpl","Matthews Public Library",["library"],ALL,12,"102 W Main St, Fredericksburg, PA 17026","Call for hours",0,"Free",
+   "Smart Start Storytime Mondays 10:30am. Preschool Storytime Wednesdays 10am. Has an upstairs toy room.","https://matthews.lclibs.org",""),
+ P("psc","Paramount Sports Complex",["blocks"],ALL,9,"21 Landings Dr, Annville, PA 17003","Mon–Fri 5am–8pm · Sat 7am–5pm · Sun 10am–3pm",1,"Preschool Playtime about $5 a child · Kidmazium about $7 (last listed prices)",
+   "Preschool Playtime (under 5): trampoline, foam pit and soft gym equipment, weekdays 9am–4pm. Kidmazium is a big climbing maze for ages 2–12. Parents stay with kids under 4.","https://visitlebanonvalley.com/business/paramount-sports-complex/","717-838-0330"),
  P("cmp","Coleman Memorial Park",["park","trail","snow","music"],ALL,1,"1400 W Maple St, Lebanon, PA 17046","Dawn to dusk",0,"Free",
    "Playground, bike playground, shady trails. Free gospel concerts on summer Sundays (June–Aug) at the amphitheater.","https://www.lebanonpa.org/community/community-pages/coleman-memorial-park","717-272-7271"),
  P("sdp","Stoever's Dam Park",["park","trail","snow"],ALL,2,"946 Miller St, Lebanon, PA 17046 (entrances off E Maple St)","Dawn to dusk",0,"Free",
@@ -305,7 +312,6 @@ function placeCard(x, compact) {
     ${x.phone ? `<div class="pl"><span>☎️</span>${esc(x.phone)}</div>` : ""}
     <div class="row" style="margin-top:8px">
       <a class="chip go" target="_blank" rel="noopener" href="${dirUrl(x)}">Directions</a>
-      <a class="chip" target="_blank" rel="noopener" href="${esc(x.url)}">Website & hours</a>
       <button class="chip ${saved ? "done" : ""}" data-savep="${x.id}">${saved ? "★ Saved" : "☆ Save"}</button>
     </div></div>`;
 }
@@ -316,6 +322,73 @@ function placesBlock(a, sk) {
   return `<div class="places"><h3 class="f">Real places for this</h3>
     <p class="mut">Hours checked ${CHECKED}. Holiday and seasonal hours change, so tap Website before you go.</p>
     ${list.map(x => placeCard(x)).join("")}</div>`;
+}
+
+// ---------- weekly toddler programs (from each library's / venue's own calendar, Nov 26, 2026) ----------
+const G = (day, start, end, name, pid, ages, c, cost, reg, tip, k) => ({day, start, end, name, pid, ages, c, cost, reg, tip, k});
+const PROGRAMS = [
+ G(0,"10:30am","11:00am","Smart Start Storytime","mpl","Babies & toddlers, birth–2",0,"Free","Just show up","A 30-minute baby & toddler storytime. Afterward, peek at the upstairs toy room.","library"),
+ G(0,"10:30am","11:00am","Little Explorers (storytime + sensory play)","ppl","Little ones & caregiver",1,"$5","Registration required: call 717-838-1347","Small group with stories, sensory bins and STEM play. Same faces every week, so it's great for making friends.","blocks"),
+ G(0,"9:00am","4:00pm","Preschool Playtime","psc","Under 5, parent stays",1,"About $5 a child","Just show up","Trampoline, foam pit and soft gym equipment. A good way to burn energy on a cold Monday.","blocks"),
+ G(1,"9:30am","10:00am","Smart Start Storytime","lcl","Babies & toddlers, birth–2",0,"Free","Just show up","Free 30-minute program with songs, rhymes and a story. Siblings are welcome, newborn too.","library"),
+ G(1,"10:30am","11:30am","Preschool Storytime","lcl","Preschoolers (toddlers welcome)",0,"Free","Just show up","If he's still going strong after Smart Start, stay for this one.","library"),
+ G(1,"9:00am","4:00pm","Preschool Playtime","psc","Under 5, parent stays",1,"About $5 a child","Just show up","Indoor gym time made for little ones.","blocks"),
+ G(2,"10:30am","11:00am","Smart Start Storytime","afl","Babies & toddlers, birth–2",0,"Free","Just show up","Free baby & toddler storytime in Annville.","library"),
+ G(2,"10:00am","11:00am","Preschool Storytime","mpl","Preschoolers (toddlers welcome)",0,"Free","Just show up","Stories and songs in Fredericksburg.","library"),
+ G(2,"12:15pm","12:45pm","Smart Start Storytime","ppl","Babies & toddlers, birth–2",0,"Free","Just show up","A midday option if mornings are rough with the baby.","library"),
+ G(3,"10:30am","11:00am","Smart Start Storytime","rcl","Babies & toddlers, birth–2",0,"Free","Just show up","Free baby & toddler storytime in Richland.","library"),
+ G(3,"11:30am","12:00pm","Smart Start Storytime","mcl","Babies & toddlers, birth–2",0,"Free","Just show up","Free baby & toddler storytime in Myerstown.","library"),
+ G(3,"10:30am","11:00am","Little Explorers (storytime + sensory play)","ppl","Little ones & caregiver",1,"$5","Registration required: call 717-838-1347","Also offered at 1:30pm on Thursdays.","blocks"),
+ G(3,"1:00pm","2:00pm","Bookworm Buddies","rcl","Little readers",0,"Free","Just show up","Stories and smiles for little ones. Good for an after-nap outing.","library"),
+ G(3,"8:00am","7:00pm","Lebanon Farmers Market","lfm","All ages",0,"Free to browse","Just show up","Indoor and warm. Grab a snack and let him watch the vendors.","market"),
+ G(4,"10:30am","11:30am","Preschool Story Time","mcl","Preschoolers (toddlers welcome)",0,"Free","Just show up","Stories and play in Myerstown.","library"),
+ G(4,"8:00am","7:00pm","Lebanon Farmers Market","lfm","All ages",0,"Free to browse","Just show up","Indoor, year-round market downtown. Elevator and free parking in back.","market"),
+ G(4,"9:00am","4:00pm","Preschool Playtime","psc","Under 5, parent stays",1,"About $5 a child","Just show up","End the week with some indoor bouncing.","blocks")
+];
+// open every day: good backup on any weekday
+const DAILY = [
+ {pid:"hcw", name:"Free Chocolate Tour ride", time:"Opens 9am", ages:"All ages", c:0, cost:"Free", reg:"Just show up", tip:"A 30-minute ride with singing cows and a free candy sample. Weekday mornings are quietest.", k:"museum"},
+ {pid:"zoo", name:"ZooAmerica walk", time:"10:00am–4:30pm", ages:"All ages", c:2, cost:"Kids 2 & under free · adults $16.50", reg:"Just show up", tip:"Small, stroller-friendly zoo. Bears, otters and owls are toddler favorites.", k:"zoo"},
+ {pid:"hgd", name:"Butterfly Atrium", time:"Opens 9am", ages:"All ages", c:2, cost:"Under 2 free · adults about $15", reg:"Just show up", tip:"It stays warm and tropical inside, even in winter.", k:"flowers"}
+];
+// dated special events
+const V = (name, from, to, wdays, time, place, addr, c, cost, tip, k) => ({name, from, to, wdays, time, place, addr, c, cost, tip, k});
+const EVENTS = [
+ V("Winter Wonderland & carriage rides","2026-12-04","2026-12-04",null,"5:00–8:00pm","Downtown Lebanon (8th St, Cumberland to Chestnut)","8th St & Cumberland St, Lebanon, PA 17042",0,"Festival free · carriage rides $10 adults, $5 ages 3–12","Fire pits, food trucks, music and lights. Carriages leave 5:00–7:35pm. Free parking lots within a block.","lights"),
+ V("Winter Wonderland & carriage rides","2026-12-11","2026-12-11",null,"5:00–8:00pm","Downtown Lebanon (8th St, Cumberland to Chestnut)","8th St & Cumberland St, Lebanon, PA 17042",0,"Festival free · carriage rides $10 adults, $5 ages 3–12","Second night of the downtown holiday festival.","lights"),
+ V("Holiday Chocolate House","2026-11-14","2026-12-31",null,"During opening hours","Hershey's Chocolate World","Hershey's Chocolate World, Hershey, PA 17033",0,"Free","A giant house covered in Hershey's candy, plus the free tour ride with holiday surprises.","museum"),
+ V("Hersheypark Christmas Candylane","2026-11-13","2027-01-03",[4,5,6],"Evenings, select dates","Hersheypark","100 W Hersheypark Dr, Hershey, PA 17033",3,"Park ticket (cheaper bought ahead)","Lights, kiddie rides and Santa's 9 live reindeer. Open select dates, mostly weekends, and daily the last weeks of December.","lights"),
+ V("Koziar's Christmas Village","2026-11-27","2027-01-02",null,"Evenings","Koziar's Christmas Village","782 Christmas Village Rd, Bernville, PA 19506",2,"Ticket per person · young kids free","A million lights on an old dairy farm, about 22 miles away. Plan 90 minutes and bring the stroller.","lights")
+];
+const ymd = d => d.toISOString().slice(0,10);
+const eventsOn = dt => { const k = ymd(dt), wd = (dt.getDay()+6)%7; return EVENTS.filter(e => k >= e.from && k <= e.to && (!e.wdays || e.wdays.includes(wd))); };
+const placeOf = id => PLACES.find(x => x.id === id);
+const progItem = g => { const pl = placeOf(g.pid); return {k:g.k, title:g.name, c:g.c, tip:g.tip, real:true, time: g.start ? g.start + "–" + g.end : g.time, place:pl.name, addr:pl.addr, phone:pl.phone, ages:g.ages, cost:g.cost, reg:g.reg, mi:pl.mi, pid:g.pid}; };
+const toMin = t => { const m = /^(\d+):(\d+)(am|pm)/.exec(t || ""); if (!m) return 9999; let h = +m[1] % 12; if (m[3] === "pm") h += 12; return h*60 + +m[2]; };
+function realOptions(i) {
+  const long = g => toMin(g.end) - toMin(g.start) > 180;
+  const prog = PROGRAMS.filter(g => g.day === i).sort((a,b) => (long(a) - long(b)) || (toMin(a.start) - toMin(b.start))).map(g => ({...progItem(g), anchor: !long(g)}));
+  const daily = DAILY.map(x => progItem({...x, start:"", end:"", time:x.time}));
+  return prog.concat(daily);
+}
+function realCard(x, idx, chosen) {
+  return `<div class="plc ${chosen ? "pick" : ""}"><div class="ph1"><b>${esc(x.title)}</b>${costTag(x.c)}</div>
+    <div class="pl"><span>🕒</span><b>${esc(x.time)}</b></div>
+    <div class="pl"><span>📍</span>${esc(x.place)} · ${esc(x.addr)}${x.mi ? " (about " + x.mi + " mi)" : ""}</div>
+    <div class="pl"><span>👶</span>${esc(x.ages)}</div>
+    <div class="pl"><span>💵</span>${esc(x.cost)}</div>
+    <div class="pl"><span>✅</span>${esc(x.reg)}</div>
+    ${x.tip ? `<div class="pl"><span>💡</span>${esc(x.tip)}</div>` : ""}
+    <div class="row" style="margin-top:8px"><a class="chip go" target="_blank" rel="noopener" href="${"https://www.google.com/maps/search/" + encodeURIComponent(x.place + ", " + x.addr)}">Directions</a>
+    ${chosen ? `<span class="chip done">✓ Today's plan</span>` : `<button class="chip" data-plan="${idx}">Make this the plan</button>`}</div></div>`;
+}
+function eventCard(e) {
+  return `<div class="plc ev"><div class="ph1"><b>${esc(e.name)}</b>${costTag(e.c)}</div>
+    <div class="pl"><span>🕒</span><b>${esc(e.time)}</b>${e.from === e.to ? "" : " · through " + fmt(new Date(e.to + "T12:00"))}</div>
+    <div class="pl"><span>📍</span>${esc(e.place)}${e.addr && e.addr !== e.place ? " · " + esc(e.addr) : ""}</div>
+    <div class="pl"><span>💵</span>${esc(e.cost)}</div>
+    <div class="pl"><span>💡</span>${esc(e.tip)}</div>
+    <div class="row" style="margin-top:8px"><a class="chip go" target="_blank" rel="noopener" href="${"https://www.google.com/maps/search/" + encodeURIComponent(e.addr)}">Directions</a></div></div>`;
 }
 
 const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -337,17 +410,23 @@ function weekData() {
     if (i > 4) { spentBefore += +o.spent[key] || 0; return {i, name, dt, key, home:true, a:{k:"home", title:"Home together", tip:"Everyone together, no plans. Rest up for next week.", c:0}}; }
     const favs = o.favs.filter(f => (f.day === "any" || +f.day === i) && (f.season === "all" || f.season === sk))
       .map(f => ({k:f.kind || "park", title:f.name, q:f.addr ? f.name + ", " + f.addr : f.name, addr:f.addr, hours:f.hours, tip:f.note || "One of your saved favorites.", fav:true, photo:f.photo, c:+f.cost||0}));
-    const all = [...SEASONS[sk][i], ...favs];
+    const real = inArea() ? realOptions(i) : [];
+    const all = real.length ? [...real, ...favs] : [...SEASONS[sk][i], ...favs];
     const left = B.week ? B.week - spentBefore : Infinity;
     const cap = B.freeOnly ? 0 : Math.min(B.day || Infinity, left);
     let opts = all.filter(x => COSTV[x.c] <= cap); if (!opts.length) opts = all.filter(x => x.c === 0);
-    if (inArea()) { const real = opts.filter(x => x.fav || placesFor(x.k, sk).length); if (real.length) opts = real; }
     spentBefore += +o.spent[key] || 0;
-    const n = opts.length, a = opts[(((wk + i + (o.swap[key]||0)) % n) + n) % n];
-    return {i, name, dt, key, a, soc: SOCIAL[(wk+i) % SOCIAL.length]};
+    const n = opts.length;
+    // real programs: start on the first scheduled program of the day; rotate only when she swaps
+    const anchors = opts.filter(x => x.anchor).length;
+    const base = real.length ? (anchors ? wk % anchors : 0) : wk + i;
+    const idx = (((base + (o.swap[key]||0)) % n) + n) % n;
+    return {i, name, dt, key, a:opts[idx], opts, idx, soc: SOCIAL[(wk+i) % SOCIAL.length]};
   });
   const spent = days.reduce((t, d) => t + (+o.spent[d.key] || 0), 0);
-  return {mon, sk, p, days, todayKey, spent};
+  const seen = new Set(), evs = [];
+  if (inArea()) days.forEach(d => eventsOn(d.dt).forEach(e => { const id = e.name + e.from; if (!seen.has(id)) { seen.add(id); evs.push(e); } }));
+  return {mon, sk, p, days, todayKey, spent, evs};
 }
 
 // ---------- icons ----------
@@ -380,16 +459,16 @@ function weekView() {
   const body = d.home ? `<div class="when">${d.name} · ${fmt(d.dt)}</div><h2 class="home-h">Home together</h2>
       <p class="mut" style="font-size:16px">Saturdays and Sundays are family days at home. Everyone together, no plans needed.</p>
       <div class="row"><label class="chip">Add a photo<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>${o.photos[d.key]?`<button class="chip" data-rmphoto="${d.key}">Remove photo</button>`:""}</div>`
-    : `<div class="when">${d.name} · ${fmt(d.dt)}</div><h2 class="${done?"strike":""}">${esc(a.title)}</h2>
+    : `<div class="when">${d.name} · ${fmt(d.dt)}${a.real ? " · " + esc(a.time) : ""}</div><h2 class="${done?"strike":""}">${esc(a.title)}</h2>
+      ${a.real ? `<div class="pl" style="margin-top:8px"><span>📍</span><span><b>${esc(a.place)}</b> · ${esc(a.addr)}</span></div>
+        <div class="pl"><span>👶</span>${esc(a.ages)}</div><div class="pl"><span>✅</span>${esc(a.reg)}</div>` : ""}
       ${a.fav && a.addr ? `<div class="pl" style="margin-top:8px"><span>📍</span>${esc(a.addr)}</div>` : ""}${a.fav && a.hours ? `<div class="pl"><span>🕒</span>${esc(a.hours)}</div>` : ""}
-      <div class="price">${costTag(a.c)}<span>${a.c ? COSTR[a.c] + " for the family, usually" : "Usually free"}</span><span class="mut">Prices change, so check before you go.</span></div>
+      <div class="price">${costTag(a.c)}<span>${a.real ? esc(a.cost) : a.c ? COSTR[a.c] + " for the family, usually" : "Usually free"}</span></div>
       <div class="note n1"><b>Good to know</b>${esc(a.tip)}</div>
       <div class="note n2"><b>Meet other parents</b>${esc(d.soc)}</div>
-      ${placesBlock(a, W.sk)}
       <div class="row">
-        <a class="chip go" target="_blank" rel="noopener" href="${a.fav ? (a.addr ? "https://www.google.com/maps/search/" + encodeURIComponent(a.q) : mapsPlace(a.q)) : maps(a.q)}">${a.fav ? "Directions" : "Near us (20 mi)"}</a>
-        ${a.fav ? "" : `<a class="chip" target="_blank" rel="noopener" href="${web(a.q + " within 30 miles of " + where())}">20–30 mi</a>
-        <a class="chip" target="_blank" rel="noopener" href="${web("best " + a.q + " for toddlers in " + o.st + " " + W.sk)}">Statewide</a>`}
+        ${a.real ? `<a class="chip go" target="_blank" rel="noopener" href="${"https://www.google.com/maps/search/" + encodeURIComponent(a.place + ", " + a.addr)}">Directions</a>`
+          : a.fav ? `<a class="chip go" target="_blank" rel="noopener" href="${a.addr ? "https://www.google.com/maps/search/" + encodeURIComponent(a.q) : mapsPlace(a.q)}">Directions</a>` : ""}
       </div>
       <div class="row">
         <button class="chip ${done?"done":""}" data-done="${d.key}">${done ? "✓ We went!" : "We went!"}</button>
@@ -398,19 +477,22 @@ function weekView() {
         <label class="chip">${o.photos[d.key] ? "Change photo" : "Add a photo"}<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>
         ${o.photos[d.key] ? `<button class="chip" data-rmphoto="${d.key}">Remove photo</button>` : ""}
       </div>
-      ${done || o.spent[d.key] ? `<form data-f="spend" data-key="${d.key}" class="spend"><label for="sp">What did you spend?</label><div class="sprow"><span>$</span><input id="sp" name="amt" type="number" inputmode="decimal" min="0" step="0.01" value="${o.spent[d.key] ?? ""}" placeholder="0"><button class="btn">Save</button></div></form>` : ""}`;
+      ${done || o.spent[d.key] ? `<form data-f="spend" data-key="${d.key}" class="spend"><label for="sp">What did you spend?</label><div class="sprow"><span>$</span><input id="sp" name="amt" type="number" inputmode="decimal" min="0" step="0.01" value="${o.spent[d.key] ?? ""}" placeholder="0"><button class="btn">Save</button></div></form>` : ""}
+      ${d.opts && d.opts.some(x => x.real) ? `<div class="places"><h3 class="f">Everything on ${d.name} for toddlers</h3>
+        <p class="mut">Times are from each library's and venue's own calendar (checked ${CHECKED}). Programs can be canceled for holidays or snow.</p>
+        ${d.opts.map((x, j) => x.real ? realCard(x, j, j === d.idx) : "").join("")}</div>` : ""}`;
   const list = W.days.map(x => `<button class="item" data-pick="${x.i}" data-top="1"><span class="pic">${art(x.a.k, p, o.photos[x.key] || x.a.photo)}</span>
-      <span><span class="d">${x.name} · ${fmt(x.dt)}</span><br><span class="t">${esc(x.a.title)}</span></span>${x.home ? "" : `<span class="s2">${costTag(x.a.c)}</span>`}${o.done[x.key] ? `<span class="s">✓${o.spent[x.key] ? " $" + money(o.spent[x.key]) : ""}</span>` : ""}</button>`).join("");
+      <span><span class="d">${x.name} · ${fmt(x.dt)}</span><br><span class="t">${esc(x.a.title)}</span>${x.a.real ? `<br><span class="d">${esc(x.a.time)} · ${esc(x.a.place)}</span>` : ""}</span>${x.home ? "" : `<span class="s2">${costTag(x.a.c)}</span>`}${o.done[x.key] ? `<span class="s">✓${o.spent[x.key] ? " $" + money(o.spent[x.key]) : ""}</span>` : ""}</button>`).join("");
   return `<div class="band" style="background:${p.band}"><div class="wrap">
     <div class="top"><div><div class="sub">${p.name} · ${esc(where())}</div><h1>Week of ${fmt(W.mon)}</h1></div>
     <div class="nav"><button data-wk="-1" aria-label="Previous week">‹</button><button data-wk="1" aria-label="Next week">›</button></div></div>
     <div class="cal">${cells}</div>${budgetBar(W)}</div></div>
   <main>
-    <div class="page"><div class="hero ${anim?"anim":""}">${art(a.k, p, photo)}<span class="tag">${d.home ? "Family day" : p.name + " outing · " + COST[a.c]}</span>${a.fav ? '<span class="tag fav">★ Favorite</span>' : ""}</div><div class="body">${body}</div></div>
+    <div class="page"><div class="hero ${anim?"anim":""}">${art(a.k, p, photo)}<span class="tag">${d.home ? "Family day" : (a.real ? esc(a.time) : p.name + " outing") + " · " + COST[a.c]}</span>${a.fav ? '<span class="tag fav">★ Favorite</span>' : ""}</div><div class="body">${body}</div></div>
+    ${inArea() && eventsOn(d.dt).length ? `<h3 class="sec">Special events ${d.home ? "this " + d.name : "on " + d.name}</h3>${eventsOn(d.dt).map(eventCard).join("")}` : ""}
     <h3 class="sec">The whole week</h3><div class="list">${list}</div>
     <h3 class="sec">Bucket list: ${p.name} trips</h3>
-    <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div>
-      <div class="row"><a class="chip go" target="_blank" rel="noopener" href="${web(W.sk + " family events kids " + o.st)}">${p.name} family events in ${esc(o.st)}</a></div></div>
+    <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div></div>
     <p class="mut" style="margin-top:18px">These are ideas, not a to-do list. With a newborn, easy weeks are perfect: library, a park walk, or a cafe playdate.</p>
   </main>`;
 }
@@ -429,8 +511,10 @@ function plainBand(title, sub, p) { return `<div class="band" style="background:
 function parentsView() {
   const p = weekData().p;
   return plainBand("Meet other parents", "Mom friends make every outing better", p) + `<main>
-    <div class="card"><h2 style="font-size:22px">Recurring groups near you</h2><p class="mut">Seeing the same faces every week is the fastest way to make friends.</p>
-      <div class="grp">${GROUPS.map(g => `<a target="_blank" rel="noopener" href="${web(g[1] + " near " + where())}">${g[0]}</a>`).join("")}</div></div>
+    <div class="card"><h2 style="font-size:22px">Best weekly spots to meet moms</h2><p class="mut">Seeing the same faces every week is the fastest way to make friends. Pick one or two and go every week.</p>
+      ${inArea() ? PROGRAMS.filter(g => g.k === "library" && /Smart Start/.test(g.name) || /Little Explorers|Playtime/.test(g.name)).filter((g, i, arr) => arr.findIndex(h => h.name === g.name && h.pid === g.pid) === i)
+          .map(g => { const x = progItem(g); return `<div class="li"><div class="g"><b>${esc(x.title)}</b><div class="mut">${DAYS[g.day]}s ${esc(x.time)} · ${esc(x.place)} · ${esc(x.cost)}</div></div></div>`; }).join("")
+        : `<p class="mut">Library baby & toddler storytimes, toddler gym open-play, and church moms groups are the easiest places to start.</p>`}</div>
     <div class="card"><h2 style="font-size:22px">Mom friends</h2><p class="mut">Save the moms you meet so you remember to invite them.</p>
       <form data-f="friend"><input name="name" placeholder="Name" required><input name="note" placeholder="Where you met, kids' ages"><button class="btn">Add friend</button></form>
       <div style="margin-top:10px">${o.friends.map(f => `<div class="li"><div class="g"><b>${esc(f.name)}</b><div class="mut">${esc(f.note)}</div></div><button class="x" data-del="friends:${esc(f.id)}" aria-label="Remove">✕</button></div>`).join("") || '<p class="mut">No one yet. Add the first mom you meet at story time.</p>'}</div></div>
@@ -447,7 +531,7 @@ function favsView() {
         <input name="note" placeholder="Note (e.g. story time Tue 10:30)">
         <label class="mut">Photo (optional)<input type="file" name="photo" accept="image/*" style="padding-top:9px"></label>
         <button class="btn">Save place</button></form></div>
-    ${inArea() ? `<div class="card"><h2 style="font-size:22px">Local spots we found</h2><p class="mut">Real places near ${esc(o.city)}. Tap ☆ Save to add one to your rotation. Hours checked ${CHECKED}.</p>
+    ${inArea() ? `<div class="card"><h2 style="font-size:22px">Local spots we found</h2><p class="mut">Real places near ${esc(o.city)} with addresses, hours and prices (checked ${CHECKED}). Tap ☆ Save to add one to your week.</p>
       ${PLACES.map(x => placeCard(x, true)).join("")}</div>` : ""}
     <div class="card">${o.favs.map(f => `<div class="li"><span class="ph">${okPhoto(f.photo) ? `<img src="${f.photo}" alt="" style="width:100%;height:100%;object-fit:cover">` : art("park", p)}</span>
       <div class="g"><b>★ ${esc(f.name)}</b> ${costTag(+f.cost||0)}${f.addr ? `<div class="mut">${esc(f.addr)}</div>` : ""}<div class="mut">${f.day === "any" ? "Any weekday" : esc(DAYS[+f.day])} · ${PAL[f.season] ? PAL[f.season].name : "All year"}${f.note ? " · " + esc(f.note) : ""}</div></div>
@@ -512,9 +596,10 @@ function shrink(file) {
 
 // ---------- events ----------
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-savep],[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
+  const b = e.target.closest("[data-plan],[data-savep],[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
   if (!b) return;
   const ds = b.dataset;
+  if (ds.plan) { const d = weekData().days[sel]; o.swap[d.key] = (o.swap[d.key]||0) + (+ds.plan - d.idx); save(); window.scrollTo({top:0, behavior:"smooth"}); return; }
   if (ds.savep) {
     const x = PLACES.find(p => p.id === ds.savep); const i = o.favs.findIndex(f => f.pid === x.id);
     if (i >= 0) o.favs.splice(i, 1);
@@ -534,7 +619,7 @@ document.addEventListener("click", e => {
   else if (ds.clear) { state.shopping = state.shopping.filter(x => !x.done); save(); }
   else if (ds.invite) {
     const d = weekData().days[+ds.invite];
-    const msg = `Hi! We're going to ${d.a.title} on ${d.name} (${fmt(d.dt)}). Want to bring the kids and join us?`;
+    const msg = d.a.real ? `Hi! We're going to ${d.a.title} at ${d.a.place} on ${d.name} (${fmt(d.dt)}) at ${d.a.time.split("–")[0]}. Want to bring the kids and join us?` : `Hi! We're going to ${d.a.title} on ${d.name} (${fmt(d.dt)}). Want to bring the kids and join us?`;
     toast(msg, "Copying…");
     try { navigator.clipboard.writeText(msg).then(() => document.getElementById("tst").textContent = "Copied! Paste it into a text to her.", () => document.getElementById("tst").textContent = "Press and hold the message to copy it."); }
     catch (err) { document.getElementById("tst").textContent = "Press and hold the message to copy it."; }
