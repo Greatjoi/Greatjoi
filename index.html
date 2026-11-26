@@ -51,6 +51,9 @@
 <header>🏡 Family Hub</header>
 <nav id="tabs"></nav>
 <main id="view"></main>
+<div id="toast" class="card" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;max-width:620px;margin:0 auto;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:9">
+  <b>💬 Invite message</b><p style="user-select:all;margin:8px 0"></p><div class="muted"></div>
+  <button class="btn small" style="margin-top:8px" onclick="this.parentNode.style.display='none'">Close</button></div>
 
 <script>
 const COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#a855f7","#ec4899"];
@@ -242,8 +245,10 @@ function delO(list,id){ state.outings[list]=state.outings[list].filter(x=>x.id!=
 function swapDay(k){ state.outings.swap[k]=(state.outings.swap[k]||0)+1; save(); }
 function invite(i){
   const w=window._wk[i]; const msg=`Hi! We're going to ${w.title} on ${w.day} (${w.date}). Want to bring the kids and join us?`;
-  if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
-  else { location.href="sms:?&body="+encodeURIComponent(msg); }
+  const t=document.getElementById("toast"); t.querySelector("p").textContent=msg; t.style.display="block";
+  const st=t.querySelector(".muted");
+  try { navigator.clipboard.writeText(msg).then(()=>st.textContent="✅ Copied! Paste it into a text to her.",()=>st.textContent="Press and hold the message to copy it."); }
+  catch(e){ st.textContent="Press and hold the message to copy it."; }
 }
 function saveLoc(e){ const v=f(e); state.outings.city=v.city.trim(); state.outings.st=v.st.trim(); save(); }
 function toggleOuting(k){ state.outings.done[k]=!state.outings.done[k]; save(); }
