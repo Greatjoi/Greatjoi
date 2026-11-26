@@ -93,6 +93,10 @@ input,select{min-height:44px;padding:0 12px;border-radius:12px;border:2px solid 
 .spend{margin-top:14px;background:var(--soft);border-radius:16px;padding:12px 14px;gap:6px}.spend label{font-family:Fredoka,Nunito,sans-serif;font-weight:600}
 .sprow{display:flex;align-items:center;gap:8px}.sprow span{font-weight:800}
 .item .s2{margin-left:auto}.item .s2+.s{margin-left:0}
+.places{margin-top:18px}.places h3{font-size:20px;font-weight:600;margin-bottom:2px}
+.plc{border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:10px;background:var(--card)}
+.ph1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:16px}
+.pl{display:flex;gap:8px;font-size:14px;margin-top:5px;line-height:1.4}.pl span{flex:none;width:18px}
 .tog{display:flex;align-items:center;gap:10px;font-weight:800;min-height:44px}
 .chk{width:24px;height:24px;flex:none;min-height:0;accent-color:var(--band)}
 .strike{text-decoration:line-through;color:var(--mut)}
@@ -150,6 +154,7 @@ const fish = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><e
 const pk = (x, y, r) => `<ellipse cx="${x}" cy="${y}" rx="${r*1.3}" ry="${r}" fill="#f97316"/><ellipse cx="${x}" cy="${y}" rx="${r*.45}" ry="${r}" fill="#fdba74" opacity=".5"/><rect x="${x-2}" y="${y-r-7}" width="4" height="9" rx="2" fill="#4d7c0f"/>`;
 const note = (x, y, c) => `<ellipse cx="${x}" cy="${y}" rx="9" ry="7" fill="${c}" transform="rotate(-20 ${x} ${y})"/><rect x="${x+6}" y="${y-38}" width="3.5" height="38" fill="${c}"/><path d="M${x+9} ${y-38}q14 6 12 20q-3-10-12-11z" fill="${c}"/>`;
 const ART = {
+  books: p => ART.library(p),
   library: p => ({fg: building("#f6e6c8","#b45309","#7c2d12") + `<g transform="translate(240 150)"><rect width="46" height="10" rx="2" fill="#ef4444"/><rect x="4" y="-10" width="40" height="10" rx="2" fill="#3b82f6"/><rect x="-2" y="-20" width="44" height="10" rx="2" fill="#f59e0b"/><rect x="6" y="-30" width="34" height="10" rx="2" fill="#10b981"/></g>`}),
   museum: p => ({fg: building("#eceff3","#475569","#1e293b") + `<line x1="160" y1="52" x2="160" y2="28" stroke="#334155" stroke-width="2.5"/><path d="M160 28h22l-6 7 6 7h-22z" fill="${p.acc}"/>`}),
   blocks: p => ({fg: cube(102,118,40,"#ef4444","A") + cube(146,118,40,"#3b82f6","B") + cube(124,76,40,"#f59e0b","C") + `<circle cx="226" cy="140" r="20" fill="${p.acc}"/><path d="M206 140h40M226 120c10 10 10 30 0 40" stroke="#fff" stroke-width="3" fill="none"/>`}),
@@ -189,7 +194,7 @@ function art(kind, p, photo) {
 const D = (k, title, q, tip, c) => ({k, title, q, tip, c});
 const COST = ["Free","$","$$","$$$"], COSTR = ["Free","About $5–15","About $15–40","About $40+"], COSTV = [0,10,25,50];
 const costTag = c => `<span class="cost c${c}">${COST[c]}</span>`;
-const LIB = [D("library","Library toddler story time","library story time toddlers","Easy even with a newborn. Songs, a book, and play time after.",0),D("library","Bookstore story hour","bookstore children story hour","Usually free and drop-in. Let him pick one board book.",0),D("music","Baby & me music class","baby music class","Look for drop-in days or a free trial class.",2)];
+const LIB = [D("library","Library toddler story time","library story time toddlers","Easy even with a newborn. Songs, a book, and play time after.",0),D("books","Bookstore story hour","bookstore children story hour","Usually free and drop-in. Let him pick one board book.",0),D("music","Baby & me music class","baby music class","Look for drop-in days or a free trial class.",2)];
 const SEASONS = {
  spring:[LIB,
   [D("blocks","Children's museum","children's museum","Toddler zones are usually gated and gentle. Go right at opening.",2),D("museum","Science center toddler zone","science center kids","Ask at the desk for the under-3 area.",2),D("museum","Art museum family morning","art museum family programs","Many have free, stroller-friendly mornings.",1),D("museum","Free museum day","free museum day kids","Many museums have a free day or free hour each month. Check the calendar.",0)],
@@ -229,6 +234,90 @@ const SOCIAL = [
  "Sit near the toddler area. Kids playing side by side start the chat for you.",
  "Mention the new baby. Other moms love to share tips."];
 const GROUPS = [["MOPS & moms groups","MOPS moms group"],["Church moms & toddlers","church moms group toddlers"],["Library baby groups","library baby toddler playgroup"],["Toddler playgroups","toddler playgroup"],["New-mom circles","new moms support group"],["Meetup mom groups","meetup moms group"]];
+
+// ---------- real places near Lebanon, PA (checked Nov 26, 2026 from official/visitor sites) ----------
+const CHECKED = "Nov 26, 2026";
+const AREA = /lebanon|annville|palmyra|myerstown|cleona|hershey|jonestown|cornwall|schaefferstown|richland|fredericksburg|mount gretna|campbelltown/i;
+const ALL = ["spring","summer","fall","winter"];
+const P = (id, name, kinds, seasons, mi, addr, hours, c, costNote, tip, url, phone) => ({id, name, kinds, seasons, mi, addr, hours, c, costNote, tip, url, phone});
+const PLACES = [
+ P("lcl","Lebanon Community Library",["library"],ALL,0,"125 N 7th St, Lebanon, PA 17046","Mon–Wed 8am–8pm · Thu 8am–7pm · Fri–Sat 8am–5pm · Sun closed",0,"Free",
+   "Smart Start Storytime for babies birth–2 (free, 30 min, no sign-up) is usually Tuesday mornings. Storytime for ages 3–6 is Wednesdays 10:30am.","https://lebanon.lclibs.org","717-273-7624"),
+ P("afl","Annville Free Library",["library"],ALL,6,"216 E Main St, Annville, PA 17003","Mon–Thu 10am–8pm · Fri–Sat 10am–5pm (summer 10am–2pm) · Sun closed",0,"Free",
+   "Smart Start Storytime (birth–2) is on Wednesdays at 10:30am on many weeks. Check the calendar.","https://annville.lclibs.org","717-867-1802"),
+ P("ppl","Palmyra Public Library",["library"],ALL,9,"50 Landings Dr, Suite B, Annville, PA 17003","Mon–Wed 10am–7pm · Thu–Fri 10am–5pm · Sat 9am–4pm (July–Labor Day 9am–1pm)",0,"Free",
+   "Smart Start Storytime is usually Wednesdays 12:15pm. Little Explorers (storytime + sensory play) needs registration.","https://palmyra.lclibs.org","717-838-1347"),
+ P("mcl","Myerstown Community Library",["library"],ALL,8,"199 N College St, Myerstown, PA 17067","Mon–Tue 10am–5pm · Wed–Thu 10am–7pm · Fri 10am–4pm · Sat 9am–4pm",0,"Free",
+   "Smart Start Storytime (birth–2) Thursdays 11:30am. Preschool Story Time Fridays 10:30am.","https://myerstown.lclibs.org","717-866-2800"),
+ P("cmp","Coleman Memorial Park",["park","trail","snow","music"],ALL,1,"1400 W Maple St, Lebanon, PA 17046","Dawn to dusk",0,"Free",
+   "Playground, bike playground, shady trails. Free gospel concerts on summer Sundays (June–Aug) at the amphitheater.","https://www.lebanonpa.org/community/community-pages/coleman-memorial-park","717-272-7271"),
+ P("sdp","Stoever's Dam Park",["park","trail","snow"],ALL,2,"946 Miller St, Lebanon, PA 17046 (entrances off E Maple St)","Dawn to dusk",0,"Free",
+   "Lake with ducks and geese, flat walking paths around the water, picnic pavilions.","https://www.lebanonpa.org/community/community-pages/stoever-s-dam-park",""),
+ P("lfm","Lebanon Farmers Market",["market","cafe"],ALL,0,"35 S 8th St, Lebanon, PA 17042","Thu & Fri 8am–7pm · Sat 7am–3pm",0,"Free to browse",
+   "Indoor, year-round market in a restored 1892 building. Food stands, elevator, free parking in back. Great on cold days.","https://www.lebanonfarmersmarket.com","717-274-3663"),
+ P("pfc","Patches Family Creamery",["farm"],ALL,4,"201 Fonderwhite Rd, Lebanon, PA 17042","Hours change by season. Call or check before you go.",1,"Ice cream about $5",
+   "Working dairy farm: homemade ice cream, animals to see, and a small playground.","https://visitlebanonvalley.com/business/patches-family-creamery/","717-273-1983"),
+ P("gar","Gray's Apple Ridge Orchard",["orchard","pumpkin","farm"],["fall"],10,"144 Greble Rd, Jonestown, PA 17038","Apple season mid-Sept to early Nov. Check hours.",1,"Pay for what you pick",
+   "Pick-your-own pumpkins (pruners and a hose provided), apples, and cows to visit.","https://visitlebanonvalley.com/business_category/fall-markets/",""),
+ P("rmf","Risser-Marvel Farm Market",["pumpkin","farm"],["fall"],7,"2425 Horseshoe Pike, Annville, PA 17003","Pumpkin patch Sept–Oct. Check hours.",1,"Pay for pumpkins",
+   "Short hayride to the pumpkin patch, corn maze, hay bale maze, trike track.","https://visitlebanonvalley.com/things-to-do-this-fall-in-the-lebanon-valley/",""),
+ P("syf","Seyfert's Farm & Orchard",["pumpkin","orchard","farm"],["fall"],3,"1800 E King St, Lebanon, PA 17042","Fall season. Check hours.",1,"Pay for what you pick",
+   "Pumpkin patch, kiddie (mini) corn maze that's perfect for toddlers, tractor hayrides, picnic area.","https://visitlebanonvalley.com/markets-and-orchards/",""),
+ P("hbo","Honey Bear Orchards",["orchard"],["fall"],3,"1819 Thompson Ave, Lebanon, PA 17046","Pick-your-own apples early Sept into Oct. Check hours.",1,"Pay for what you pick",
+   "Six kinds of apples to pick yourself.","https://visitlebanonvalley.com/markets-and-orchards/",""),
+ P("hsm","The Hershey Story Museum",["museum"],ALL,15,"63 W Chocolate Ave, Hershey, PA 17033","Daily 9am–5pm (Jan–Feb 9am–4pm)",2,"Adults $16.50 · ages 2 and under free",
+   "Museums for All: with an EBT card, $5 adults and $3 kids 3–12. Free parking garage behind the museum.","https://hersheystory.org/hours-information/",""),
+ P("hcw","Hershey's Chocolate World",["museum","blocks"],ALL,15,"Next to Hersheypark, Hershey, PA 17033","Open daily from 9am. Closing time changes by day.",0,"Free admission and free tour ride",
+   "The 30-minute Chocolate Tour ride is free with a free candy sample at the end. Go in the first or last two hours of the day. Short-term parking is free.","https://www.chocolateworld.com/plan-your-visit/hours.html",""),
+ P("zoo","ZooAmerica",["zoo"],ALL,15,"201 Park Ave, Hershey, PA 17033","Daily 10am–4:30pm most of the year (later in summer). Closed Thanksgiving & Christmas.",2,"Ages 9–61 $16.50 · ages 3–8 $14.50 · 2 and under free",
+   "Small 11-acre walk-through zoo of North American animals. Easy with a stroller. Free parking.","https://www.zooamerica.com",""),
+ P("hgd","Hershey Gardens & Butterfly Atrium",["flowers"],ALL,15,"170 Hotel Rd, Hershey, PA 17033","Daily from 9am; closes 4–6pm by season. Closed Thanksgiving & Christmas.",2,"About $15 adults · $11 kids 3–12 · under 2 free",
+   "The indoor Butterfly Atrium stays warm all year. There's also a Children's Garden.","https://www.hersheygardens.org/visit/hours/",""),
+ P("mcw","Middle Creek Wildlife Area",["trail","zoo"],ALL,16,"100 Museum Rd, Stevens, PA 17578","Trails sunrise–sunset. Visitor Center Tue–Sun 8am–4pm, closed Mondays and from Thanksgiving to mid-January.",0,"Free",
+   "Visitor center has animal exhibits and a bird-feeder window. Thousands of swans and snow geese stop here in late Feb–March.","https://www.pa.gov/agencies/pgc/about-us/contact-information/offices-and-regions/middle-creek-wildlife-management-area","717-733-1512"),
+ P("ymca","Lebanon Valley Family YMCA",["pool"],ALL,0,"201 N 7th St, Lebanon, PA 17046","Mon–Fri 4:30am–9pm · Sat 7am–5pm · Sun 8am–5pm",2,"Membership or short-term pass",
+   "Indoor pool. Ask the front desk about family swim times and guest or week passes.","https://www.ymca.org/locations/lebanon-valley-family-ymca",""),
+ P("hoh","Hands-on House Children's Museum",["blocks"],ALL,28,"721 Landis Valley Rd, Lancaster, PA 17601","Closed Mondays. Open Tue–Sun, usually from 9am (Sundays close early).",2,"About $12 per person",
+   "Made for ages 2–10, with a mini neighborhood indoors and outdoor play. Weekday mornings are quietest. Museums for All discount.","https://handsonhouse.org/visit/hours.html","717-569-5437"),
+ P("smp","State Museum of Pennsylvania",["museum","blocks"],ALL,26,"300 North St, Harrisburg, PA 17120","Wed–Sat 9am–4:30pm · Sun noon–4:30pm · closed Mon–Tue",1,"Adults $7 · kids 1–11 $5 · under 1 free",
+   "Curiosity Connection play area for ages 5 and under is included. Street and garage parking nearby.","https://statemuseumpa.org","717-787-4980"),
+ P("wsc","Whitaker Center Science Center",["museum","blocks"],ALL,26,"222 Market St, Harrisburg, PA 17101","Usually 10am–5pm, Fri–Mon. Check the site.",2,"Adults $16 · ages 3–17 $13 · 2 and under free",
+   "Kids Place area for little ones. Park in the Walnut St garage.","https://www.whitakercenter.org/this-month","717-214-2787"),
+ P("lsf","Lancaster Science Factory",["museum"],ALL,27,"454 New Holland Ave, Lancaster, PA 17602","Tue–Sat 10am–5pm · Sun noon–5pm (also Mondays in summer)",2,"$12 ages 3 and up",
+   "Best for older kids, but toddlers like the water table. Free on First Fridays 5–7pm.","https://lancastersciencefactory.org/www.LancasterScienceFactory.org/plan-your-visit","717-509-6363"),
+ P("kcv","Koziar's Christmas Village",["lights"],["fall","winter"],22,"782 Christmas Village Rd, Bernville, PA 19506","Nov 7, 2026 – Jan 2, 2027, evenings. Weekends only until Thanksgiving, then nightly.",2,"Ticket per person · young kids free",
+   "A million lights on an old dairy farm. Bring the stroller and warm layers. Plan about 90 minutes.","https://koziarschristmasvillage.com","610-488-1110"),
+ P("ltw","Lake Tobias Wildlife Park",["zoo","farm"],["spring","summer","fall"],35,"760 Tobias Rd, Halifax, PA 17032","Daily May 1 – Labor Day, then weekends only through October. Closed Nov–Apr.",1,"Zoo exhibits $11 · under 3 free",
+   "A day trip. The petting zoo is included, and the open-air safari tour is extra.","https://www.laketobias.com","717-362-9126")
+];
+const inArea = () => AREA.test(o.city) && /^(pa|penn)/i.test(o.st.trim());
+const placesFor = (k, sk) => PLACES.filter(x => x.kinds.includes(k) && x.seasons.includes(sk)).sort((a,b) => a.mi - b.mi);
+const zoneOf = mi => mi <= 20 ? "Near you" : mi <= 30 ? "20–30 mi" : "Day trip";
+const dirUrl = x => "https://www.google.com/maps/search/" + encodeURIComponent(x.name + ", " + x.addr);
+function placeCard(x, compact) {
+  const saved = o.favs.some(f => f.pid === x.id);
+  return `<div class="plc"><div class="ph1"><b>${esc(x.name)}</b>${costTag(x.c)}</div>
+    <div class="mut">${zoneOf(x.mi)}${x.mi ? " · about " + x.mi + " mi" : " · in town"}</div>
+    <div class="pl"><span>📍</span>${esc(x.addr)}</div>
+    <div class="pl"><span>🕒</span>${esc(x.hours)}</div>
+    <div class="pl"><span>💵</span>${esc(x.costNote)}</div>
+    ${compact ? "" : `<div class="pl"><span>💡</span>${esc(x.tip)}</div>`}
+    ${x.phone ? `<div class="pl"><span>☎️</span>${esc(x.phone)}</div>` : ""}
+    <div class="row" style="margin-top:8px">
+      <a class="chip go" target="_blank" rel="noopener" href="${dirUrl(x)}">Directions</a>
+      <a class="chip" target="_blank" rel="noopener" href="${esc(x.url)}">Website & hours</a>
+      <button class="chip ${saved ? "done" : ""}" data-savep="${x.id}">${saved ? "★ Saved" : "☆ Save"}</button>
+    </div></div>`;
+}
+function placesBlock(a, sk) {
+  if (a.fav || !inArea()) return "";
+  const list = placesFor(a.k, sk);
+  if (!list.length) return "";
+  return `<div class="places"><h3 class="f">Real places for this</h3>
+    <p class="mut">Hours checked ${CHECKED}. Holiday and seasonal hours change, so tap Website before you go.</p>
+    ${list.map(x => placeCard(x)).join("")}</div>`;
+}
+
 const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const autoSeason = d => { const m = d.getMonth(); return m>=2&&m<=4?"spring":m>=5&&m<=7?"summer":m>=8&&m<=10?"fall":"winter"; };
 const where = () => o.city + ", " + o.st;
@@ -247,11 +336,12 @@ function weekData() {
     const dt = new Date(mon); dt.setDate(mon.getDate() + i); const key = dt.toISOString().slice(0,10);
     if (i > 4) { spentBefore += +o.spent[key] || 0; return {i, name, dt, key, home:true, a:{k:"home", title:"Home together", tip:"Everyone together, no plans. Rest up for next week.", c:0}}; }
     const favs = o.favs.filter(f => (f.day === "any" || +f.day === i) && (f.season === "all" || f.season === sk))
-      .map(f => ({k:"park", title:f.name, q:f.name, tip:f.note || "One of your saved favorites.", fav:true, photo:f.photo, c:+f.cost||0}));
+      .map(f => ({k:f.kind || "park", title:f.name, q:f.addr ? f.name + ", " + f.addr : f.name, addr:f.addr, hours:f.hours, tip:f.note || "One of your saved favorites.", fav:true, photo:f.photo, c:+f.cost||0}));
     const all = [...SEASONS[sk][i], ...favs];
     const left = B.week ? B.week - spentBefore : Infinity;
     const cap = B.freeOnly ? 0 : Math.min(B.day || Infinity, left);
     let opts = all.filter(x => COSTV[x.c] <= cap); if (!opts.length) opts = all.filter(x => x.c === 0);
+    if (inArea()) { const real = opts.filter(x => x.fav || placesFor(x.k, sk).length); if (real.length) opts = real; }
     spentBefore += +o.spent[key] || 0;
     const n = opts.length, a = opts[(((wk + i + (o.swap[key]||0)) % n) + n) % n];
     return {i, name, dt, key, a, soc: SOCIAL[(wk+i) % SOCIAL.length]};
@@ -291,11 +381,13 @@ function weekView() {
       <p class="mut" style="font-size:16px">Saturdays and Sundays are family days at home. Everyone together, no plans needed.</p>
       <div class="row"><label class="chip">Add a photo<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>${o.photos[d.key]?`<button class="chip" data-rmphoto="${d.key}">Remove photo</button>`:""}</div>`
     : `<div class="when">${d.name} · ${fmt(d.dt)}</div><h2 class="${done?"strike":""}">${esc(a.title)}</h2>
+      ${a.fav && a.addr ? `<div class="pl" style="margin-top:8px"><span>📍</span>${esc(a.addr)}</div>` : ""}${a.fav && a.hours ? `<div class="pl"><span>🕒</span>${esc(a.hours)}</div>` : ""}
       <div class="price">${costTag(a.c)}<span>${a.c ? COSTR[a.c] + " for the family, usually" : "Usually free"}</span><span class="mut">Prices change, so check before you go.</span></div>
       <div class="note n1"><b>Good to know</b>${esc(a.tip)}</div>
       <div class="note n2"><b>Meet other parents</b>${esc(d.soc)}</div>
+      ${placesBlock(a, W.sk)}
       <div class="row">
-        <a class="chip go" target="_blank" rel="noopener" href="${a.fav ? mapsPlace(a.q) : maps(a.q)}">${a.fav ? "Directions" : "Near us (20 mi)"}</a>
+        <a class="chip go" target="_blank" rel="noopener" href="${a.fav ? (a.addr ? "https://www.google.com/maps/search/" + encodeURIComponent(a.q) : mapsPlace(a.q)) : maps(a.q)}">${a.fav ? "Directions" : "Near us (20 mi)"}</a>
         ${a.fav ? "" : `<a class="chip" target="_blank" rel="noopener" href="${web(a.q + " within 30 miles of " + where())}">20–30 mi</a>
         <a class="chip" target="_blank" rel="noopener" href="${web("best " + a.q + " for toddlers in " + o.st + " " + W.sk)}">Statewide</a>`}
       </div>
@@ -355,8 +447,10 @@ function favsView() {
         <input name="note" placeholder="Note (e.g. story time Tue 10:30)">
         <label class="mut">Photo (optional)<input type="file" name="photo" accept="image/*" style="padding-top:9px"></label>
         <button class="btn">Save place</button></form></div>
+    ${inArea() ? `<div class="card"><h2 style="font-size:22px">Local spots we found</h2><p class="mut">Real places near ${esc(o.city)}. Tap ☆ Save to add one to your rotation. Hours checked ${CHECKED}.</p>
+      ${PLACES.map(x => placeCard(x, true)).join("")}</div>` : ""}
     <div class="card">${o.favs.map(f => `<div class="li"><span class="ph">${okPhoto(f.photo) ? `<img src="${f.photo}" alt="" style="width:100%;height:100%;object-fit:cover">` : art("park", p)}</span>
-      <div class="g"><b>★ ${esc(f.name)}</b> ${costTag(+f.cost||0)}<div class="mut">${f.day === "any" ? "Any weekday" : esc(DAYS[+f.day])} · ${PAL[f.season] ? PAL[f.season].name : "All year"}${f.note ? " · " + esc(f.note) : ""}</div></div>
+      <div class="g"><b>★ ${esc(f.name)}</b> ${costTag(+f.cost||0)}${f.addr ? `<div class="mut">${esc(f.addr)}</div>` : ""}<div class="mut">${f.day === "any" ? "Any weekday" : esc(DAYS[+f.day])} · ${PAL[f.season] ? PAL[f.season].name : "All year"}${f.note ? " · " + esc(f.note) : ""}</div></div>
       <button class="x" data-del="favs:${esc(f.id)}" aria-label="Remove">✕</button></div>`).join("") || '<p class="mut">No favorites yet. When you find a spot you love, save it here and it will show up in the week.</p>'}</div>
   </main>`;
 }
@@ -418,10 +512,16 @@ function shrink(file) {
 
 // ---------- events ----------
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
+  const b = e.target.closest("[data-savep],[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
   if (!b) return;
   const ds = b.dataset;
-  if (ds.free) { o.budget.freeOnly = !o.budget.freeOnly; save(); }
+  if (ds.savep) {
+    const x = PLACES.find(p => p.id === ds.savep); const i = o.favs.findIndex(f => f.pid === x.id);
+    if (i >= 0) o.favs.splice(i, 1);
+    else o.favs.push({id:uid(), pid:x.id, name:x.name, addr:x.addr, hours:x.hours, kind:x.kinds[0], day:"any", season:x.seasons.length === 4 ? "all" : x.seasons[0], note:x.tip, cost:x.c, photo:""});
+    save();
+  }
+  else if (ds.free) { o.budget.freeOnly = !o.budget.freeOnly; save(); }
   else if (ds.tab) { state.tab = ds.tab; save(); if (ds.go) document.getElementById(ds.go)?.scrollIntoView(); else window.scrollTo(0,0); }
   else if (ds.pick) { sel = +ds.pick; anim = true; render(); anim = false; if (ds.top) window.scrollTo({top:0, behavior:"smooth"}); }
   else if (ds.wk) { o.week += +ds.wk; sel = 0; render(); }
