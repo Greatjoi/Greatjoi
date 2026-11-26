@@ -40,6 +40,11 @@
   .wk { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
   .small { padding:6px 12px; background:var(--card); color:var(--text); border:1px solid var(--line); }
   details summary { cursor:pointer; font-weight:600; }
+  .social { background:var(--bg); border-left:3px solid #10b981; border-radius:10px; padding:8px 10px; margin-top:8px; font-size:.85rem; }
+  .fav { font-size:.75rem; background:#f59e0b; color:#fff; border-radius:999px; padding:2px 8px; margin-left:6px; vertical-align:middle; }
+  .acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+  .acts button { font-size:.85rem; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; }
+  .acts label { margin-right:auto; }
 </style>
 </head>
 <body>
@@ -55,6 +60,7 @@ let state;
 try { state = JSON.parse(localStorage.getItem("familyhub")); } catch (e) {}
 state = state || { tab:"outings", members:[], events:[], chores:[], shopping:[], outings:{ city:'', st:'', season:'auto', week:0, done:{} } };
 state.outings = state.outings || { city:'', st:'', season:'auto', week:0, done:{} };
+state.outings.favs = state.outings.favs || []; state.outings.friends = state.outings.friends || []; state.outings.swap = state.outings.swap || {};
 const save = () => { try { localStorage.setItem("familyhub", JSON.stringify(state)); } catch (e) {} render(); };
 const uid = () => Math.random().toString(36).slice(2, 9);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -141,8 +147,25 @@ const SEASONS = {
   nat:["🎄 Zoo lights events around the country","⛷️ A snow-day trip (sledding, snow play)","🏛️ Smithsonian & museum days in DC"] }
 };
 const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday"];
+const SOCIAL=[
+ "Stay 10 minutes after. Ask another mom how old her little one is. It's the easiest opener.",
+ "Look for the parent who comes back every week. Regulars become friends.",
+ "Ask a mom if she'd like to meet here again next week at the same time.",
+ "Compliment something (a carrier, a stroller, a snack idea) and ask where she got it.",
+ "Ask the staff or librarian if there's a regular parents' group or playgroup.",
+ "Swap numbers with one parent you clicked with, then save her under Mom friends below.",
+ "Sit near the toddler area. Kids playing side by side start the chat for you.",
+ "Mention you have a baby on the way or a newborn. Other moms love to share tips."];
+const GROUPS=[
+ ["🤱","MOPS / moms groups","MOPS moms group"],
+ ["⛪","Church moms & toddler groups","church moms group toddlers"],
+ ["📚","Library baby & toddler groups","library baby toddler playgroup"],
+ ["🛝","Toddler playgroups","toddler playgroup"],
+ ["🍼","Breastfeeding & new-mom circles","new moms support group"],
+ ["📅","Meetup mom groups","meetup moms group"]];
 function autoSeason(d){ const m=d.getMonth(); return m>=2&&m<=4?"spring":m>=5&&m<=7?"summer":m>=8&&m<=10?"fall":"winter"; }
 const mapsUrl=(q,o)=>"https://www.google.com/maps/search/"+encodeURIComponent(q+" near "+o.city+", "+o.st);
+const mapsPlace=(q,o)=>"https://www.google.com/maps/search/"+encodeURIComponent(q+", "+o.city+", "+o.st);
 const webUrl=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 function outingsView(){
   const o=state.outings;
@@ -153,19 +176,29 @@ function outingsView(){
   const sk=o.season==="auto"?autoSeason(mon):o.season; const S=SEASONS[sk];
   const wkNum=Math.floor(mon.getTime()/(7*864e5));
   const fmt=d=>d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  const favsFor=(i)=>o.favs.filter(p=>(p.day==="any"||+p.day===i)&&(p.season==="all"||p.season===sk))
+    .map(p=>({icon:"⭐",title:p.name,q:p.name,tip:p.note||"One of your saved favorites.",fav:true}));
+  window._wk=[];
   const cards=DAYS.map((name,i)=>{
     const dt=new Date(mon); dt.setDate(mon.getDate()+i); const key=dt.toISOString().slice(0,10);
-    const opts=S.days[i]; const a=opts[(wkNum+i)%opts.length];
-    const done=!!o.done[key];
+    const opts=[...S.days[i],...favsFor(i)]; const a=opts[((wkNum+i+(o.swap[key]||0))%opts.length+opts.length)%opts.length];
+    const done=!!o.done[key]; const soc=SOCIAL[(wkNum+i)%SOCIAL.length];
+    window._wk[i]={title:a.title,day:name,date:fmt(dt)};
+    const near=a.fav?mapsPlace(a.q,o):mapsUrl(a.q,o);
     return `<div class="card day"><div class="ic">${a.icon}</div><div class="grow" style="flex:1">
-      <div class="muted">${name} · ${fmt(dt)}</div><h3 class="${done?'done':''}">${esc(a.title)}</h3>
+      <div class="muted">${name} · ${fmt(dt)}</div><h3 class="${done?'done':''}">${esc(a.title)}${a.fav?'<span class="fav">Favorite</span>':''}</h3>
       <div class="tip">💡 ${esc(a.tip)}</div>
+      <div class="social">👋 <b>Meet parents:</b> ${esc(soc)}</div>
       <div class="links">
-        <a target="_blank" rel="noopener" href="${mapsUrl(a.q,o)}">📍 Near me (≤20 mi)</a>
-        <a target="_blank" rel="noopener" href="${webUrl(a.q+' within 30 miles of '+o.city+', '+o.st)}">🚗 20-30 mi</a>
-        <a target="_blank" rel="noopener" href="${webUrl('best '+a.q+' for toddlers in '+o.st+' '+sk)}">🗺️ Statewide</a>
+        <a target="_blank" rel="noopener" href="${near}">📍 ${a.fav?"Directions":"Near me (≤20 mi)"}</a>
+        ${a.fav?"":`<a target="_blank" rel="noopener" href="${webUrl(a.q+' within 30 miles of '+o.city+', '+o.st)}">🚗 20-30 mi</a>
+        <a target="_blank" rel="noopener" href="${webUrl('best '+a.q+' for toddlers in '+o.st+' '+sk)}">🗺️ Statewide</a>`}
       </div>
-      <label class="row" style="margin-top:8px"><input type="checkbox" ${done?"checked":""} onchange="toggleOuting('${key}')"> We went!</label>
+      <div class="acts">
+        <label class="row"><input type="checkbox" ${done?"checked":""} onchange="toggleOuting('${key}')"> We went!</label>
+        <button onclick="invite(${i})">💬 Invite a mom</button>
+        <button onclick="swapDay('${key}')">🔀 Swap</button>
+      </div>
     </div></div>`}).join("");
   const weekend=`<div class="card home">🏠 Saturday & Sunday: family home days<br><span class="muted">Everyone together, no plans.</span></div>`;
   return `<div class="wk"><button class="btn small" onclick="state.outings.week--;save()">← Prev</button>
@@ -174,9 +207,43 @@ function outingsView(){
     +cards+weekend+
     `<div class="card"><details><summary>🇺🇸 Nationwide bucket-list ideas for ${S.name}</summary><ul>${S.nat.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>
       <a target="_blank" rel="noopener" href="${webUrl(sk+' family events kids '+o.st)}">🗺️ ${S.name} family events in ${esc(o.st)}</a></details></div>
+    ${parentsCard(o)}
+    ${favsCard(o)}
     <div class="card"><details><summary>⚙️ Settings</summary>
       <form onsubmit="saveLoc(event)" style="margin-top:10px"><input name="city" value="${esc(o.city)}" required><input name="st" value="${esc(o.st)}" required><button class="btn">Update place</button></form>
       <select onchange="state.outings.season=this.value;save()">${["auto",...Object.keys(SEASONS)].map(k=>`<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Season: automatic":SEASONS[k].name}</option>`).join("")}</select></details></div>`;
+}
+function parentsCard(o){
+  return `<div class="card"><details><summary>👋 Meet other parents (${o.friends.length} mom friend${o.friends.length===1?"":"s"})</summary>
+    <p class="muted">Recurring groups are the fastest way to make mom friends because you see the same faces each week.</p>
+    <div class="links">${GROUPS.map(g=>`<a target="_blank" rel="noopener" href="${webUrl(g[2]+' near '+o.city+', '+o.st)}">${g[0]} ${g[1]}</a>`).join("")}</div>
+    <h4 style="margin:14px 0 6px">💛 Mom friends</h4>
+    <form onsubmit="addFriend(event)"><input name="name" placeholder="Name" required><input name="note" placeholder="Where you met / kids' ages"><button class="btn">Add</button></form>
+    ${o.friends.map(p=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--line)"><div class="grow"><b>${esc(p.name)}</b><div class="muted">${esc(p.note||"")}</div></div>
+      <button class="x" onclick="delO('friends','${p.id}')">✕</button></div>`).join("")||'<p class="muted">No one yet. Add a mom you meet so you remember to invite her.</p>'}
+  </details></div>`;
+}
+function favsCard(o){
+  const dayOpt=`<option value="any">Any weekday</option>`+DAYS.map((d,i)=>`<option value="${i}">${d}</option>`).join("");
+  const sOpt=`<option value="all">All year</option>`+Object.keys(SEASONS).map(k=>`<option value="${k}">${SEASONS[k].name}</option>`).join("");
+  return `<div class="card"><details><summary>⭐ Our favorite places (${o.favs.length})</summary>
+    <p class="muted">Save places you love. They join the rotation for that day and season, marked ⭐.</p>
+    <form onsubmit="addFav(event)"><input name="name" placeholder="Place (e.g. Lebanon Library)" required>
+      <select name="day">${dayOpt}</select><select name="season">${sOpt}</select>
+      <input name="note" placeholder="Note (e.g. story time 10:30)"><button class="btn">Save</button></form>
+    ${o.favs.map(p=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--line)"><div class="grow"><b>⭐ ${esc(p.name)}</b>
+      <div class="muted">${p.day==="any"?"Any weekday":DAYS[+p.day]} · ${p.season==="all"?"All year":SEASONS[p.season].name}${p.note?" · "+esc(p.note):""}</div></div>
+      <button class="x" onclick="delO('favs','${p.id}')">✕</button></div>`).join("")}
+  </details></div>`;
+}
+function addFav(e){ state.outings.favs.push({id:uid(),...f(e)}); save(); }
+function addFriend(e){ state.outings.friends.push({id:uid(),...f(e)}); save(); }
+function delO(list,id){ state.outings[list]=state.outings[list].filter(x=>x.id!==id); save(); }
+function swapDay(k){ state.outings.swap[k]=(state.outings.swap[k]||0)+1; save(); }
+function invite(i){
+  const w=window._wk[i]; const msg=`Hi! We're going to ${w.title} on ${w.day} (${w.date}). Want to bring the kids and join us?`;
+  if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
+  else { location.href="sms:?&body="+encodeURIComponent(msg); }
 }
 function saveLoc(e){ const v=f(e); state.outings.city=v.city.trim(); state.outings.st=v.st.trim(); save(); }
 function toggleOuting(k){ state.outings.done[k]=!state.outings.done[k]; save(); }
