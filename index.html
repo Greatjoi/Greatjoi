@@ -30,6 +30,16 @@
   .score { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
   .score .card { flex:1; text-align:center; margin:0; min-width:90px; }
   .score b { font-size:1.5rem; display:block; }
+  .day { display:flex; gap:12px; align-items:flex-start; }
+  .day .ic { font-size:2rem; }
+  .day h3 { margin:0; font-size:1.05rem; }
+  .links { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .links a { font-size:.85rem; padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--accent); text-decoration:none; background:var(--bg); }
+  .home { text-align:center; color:var(--muted); }
+  .tip { background:var(--bg); border-radius:10px; padding:8px 10px; margin-top:8px; font-size:.85rem; }
+  .wk { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .small { padding:6px 12px; background:var(--card); color:var(--text); border:1px solid var(--line); }
+  details summary { cursor:pointer; font-weight:600; }
 </style>
 </head>
 <body>
@@ -39,11 +49,12 @@
 
 <script>
 const COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#a855f7","#ec4899"];
-const TABS = [["calendar","📅 Calendar"],["chores","✅ Chores"],["shopping","🛒 Shopping"],["family","👨‍👩‍👦‍👦 Family"]];
+const TABS = [["calendar","📅 Calendar"],["chores","✅ Chores"],["shopping","🛒 Shopping"],["outings","🌳 Outings"],["family","👨‍👩‍👦‍👦 Family"]];
 
 let state;
 try { state = JSON.parse(localStorage.getItem("familyhub")); } catch (e) {}
-state = state || { tab:"calendar", members:[], events:[], chores:[], shopping:[] };
+state = state || { tab:"outings", members:[], events:[], chores:[], shopping:[], outings:{ city:'', st:'', season:'auto', week:0, done:{} } };
+state.outings = state.outings || { city:'', st:'', season:'auto', week:0, done:{} };
 const save = () => { try { localStorage.setItem("familyhub", JSON.stringify(state)); } catch (e) {} render(); };
 const uid = () => Math.random().toString(36).slice(2, 9);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -59,6 +70,7 @@ function render() {
 }
 
 const views = {
+  outings(){ return outingsView(); },
   calendar() {
     const events = [...state.events].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
     return `<form onsubmit="addEvent(event)">
@@ -95,6 +107,79 @@ const views = {
         '<p class="muted">Start by adding your wife and sons.</p>');
   }
 };
+
+
+const D = (icon,title,q,tip) => ({icon,title,q,tip});
+const SEASONS = {
+ spring:{ name:"Spring 🌷", days:[
+  [D("📚","Library toddler story time","library story time toddlers","Great first outing with a newborn too. Parents chat after, easy to meet other moms."),D("📖","Bookstore story hour","bookstore children story hour","Many indoor, free, and drop-in."),D("🎵","Baby & me music class","baby music class","Look for drop-in or free trial classes.")],
+  [D("🧸","Children's museum","children's museum","Toddler areas are usually separate and gentle."),D("🔬","Science center (toddler zone)","science center kids","Check for a under-3 area."),D("🎨","Art museum family morning","art museum family programs","Many have free stroller-friendly mornings.")],
+  [D("🦒","Zoo","zoo","Go in the morning when animals are active and it's cooler."),D("🐐","Petting zoo / animal sanctuary","petting zoo","Spring babies on display."),D("🌸","Botanical garden","botanical garden","Flat paths, great for strollers.")],
+  [D("🐠","Aquarium","aquarium","Dim, calm, and toddlers love the tanks."),D("🥾","Nature center walk","nature center kids","Short trails; baby-wearing works well."),D("🛝","Playground picnic","playground near me","Pack a picnic and invite another mom.")],
+  [D("🐑","Farm visit (baby animals)","farm visit kids","Lambs and chicks in spring."),D("🌷","Tulip / flower farm","flower farm u-pick","Check bloom dates before you go."),D("🥕","Farmers market","farmers market","Often has kids' activities and music.")]],
+  nat:["🌸 Cherry blossoms in Washington, DC","🏞️ National Park wildflowers (Junior Ranger programs)","🏛️ Smithsonian museums (free, stroller-friendly)"] },
+ summer:{ name:"Summer ☀️", days:[
+  [D("📚","Library summer reading event","library summer reading toddlers","Free and air-conditioned."),D("📖","Bookstore story hour","bookstore children story hour","Indoor break from the heat."),D("🎵","Free concert in the park","free outdoor concert kids","Bring a blanket.")],
+  [D("💦","Splash pad","splash pad","Bring swim diapers and a change of clothes."),D("🏊","Baby swim / shallow pool","public pool toddler swim","Check family swim hours."),D("🧸","Children's museum","children's museum","Cool and indoors on hot days.")],
+  [D("🦒","Zoo (go early)","zoo","Arrive at opening to beat the heat."),D("🐐","Petting zoo","petting zoo","Shaded and easy."),D("🌳","Shady park & playground","shaded playground","Pick one with trees.")],
+  [D("🏖️","Beach / lake day","beach lake kids","Shade tent, sunscreen, and snacks."),D("🐠","Aquarium","aquarium","Cool escape on a very hot day."),D("🥾","Early morning nature walk","nature trail stroller friendly","Go before it gets hot.")],
+  [D("🍓","U-pick berry farm","u-pick berry farm","Go early; toddlers love it."),D("🐄","Farm visit","farm visit kids","Check hours and shade."),D("🥕","Farmers market","farmers market","Fresh fruit snack included.")]],
+  nat:["🏞️ National Park Junior Ranger badge","🏖️ A national seashore or lakeshore day","🚂 Train or heritage railway ride"] },
+ fall:{ name:"Fall 🍂", days:[
+  [D("📚","Library toddler story time","library story time toddlers","Easy first outing with a newborn too."),D("📖","Bookstore story hour","bookstore children story hour","Indoor and drop-in."),D("🎵","Baby & me music class","baby music class","Great for meeting parents.")],
+  [D("🧸","Children's museum","children's museum","Toddler areas are usually separate."),D("🔬","Science center","science center kids","Check for an under-3 area."),D("🎨","Art museum family morning","art museum family programs","Often stroller friendly.")],
+  [D("🎃","Pumpkin patch","pumpkin patch","Great photo spot. Mid-week is quieter."),D("🦒","Zoo","zoo","Cooler weather means active animals."),D("🌽","Fall festival","fall festival kids","Check for toddler-friendly activities.")],
+  [D("🍎","Apple orchard","apple orchard u-pick","Cider and donuts too."),D("🍂","Leaf-peeping nature trail","nature trail stroller friendly","Wide paved paths work best."),D("🐠","Aquarium","aquarium","A good rainy-day fallback.")],
+  [D("🌽","Farm & hay ride","farm hayride kids","Check for toddler-sized rides."),D("🐄","Farm visit","farm visit kids","Animals and tractors."),D("🥕","Farmers market","farmers market","Seasonal produce and music.")]],
+  nat:["🍁 Fall foliage drive (Great Smoky Mountains, New England)","🎃 Famous pumpkin festivals","🦌 National wildlife refuge visit"] },
+ winter:{ name:"Winter ❄️", days:[
+  [D("📚","Library toddler story time","library story time toddlers","Warm and free."),D("📖","Bookstore story hour","bookstore children story hour","Cozy indoor spot."),D("🎵","Baby & me music class","baby music class","Meet other parents.")],
+  [D("🤸","Indoor play gym","indoor play gym toddlers","Look for open-play toddler hours."),D("🧸","Children's museum","children's museum","Warm and engaging."),D("🛝","Mall or indoor play area","indoor playground","Free and easy for a quick outing.")],
+  [D("🏛️","Museum","museum family kids","Stroller friendly and heated."),D("🔬","Science center","science center kids","Check for an under-3 area."),D("🐠","Aquarium","aquarium","Warm, with calm lights.")],
+  [D("🌴","Conservatory / greenhouse","conservatory botanical garden","A warm tropical escape."),D("🦒","Zoo (indoor exhibits)","zoo","Bundle up and visit indoor exhibits."),D("🥾","Bundled-up park walk","park walk","Short and sweet. Hot cocoa after.")],
+  [D("☕","Parent playdate at a cafe","kid friendly cafe","Invite a mom friend from story time."),D("🏊","Indoor pool","indoor pool family swim","Warm water and fun."),D("🎄","Holiday lights / events","holiday lights kids","Check for toddler hours.")]],
+  nat:["🎄 Zoo lights events around the country","⛷️ A snow-day trip (sledding, snow play)","🏛️ Smithsonian & museum days in DC"] }
+};
+const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday"];
+function autoSeason(d){ const m=d.getMonth(); return m>=2&&m<=4?"spring":m>=5&&m<=7?"summer":m>=8&&m<=10?"fall":"winter"; }
+const mapsUrl=(q,o)=>"https://www.google.com/maps/search/"+encodeURIComponent(q+" near "+o.city+", "+o.st);
+const webUrl=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
+function outingsView(){
+  const o=state.outings;
+  if(!o.city||!o.st) return `<div class="card"><h3 style="margin-top:0">Where are you based?</h3>
+    <p class="muted">Used to find places near you, such as libraries, museums, zoos, and farms. It stays on this device.</p>
+    <form onsubmit="saveLoc(event)"><input name="city" placeholder="City" required><input name="st" placeholder="State" required><button class="btn">Save</button></form></div>`;
+  const now=new Date(); const mon=new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7)+o.week*7); mon.setHours(12,0,0,0);
+  const sk=o.season==="auto"?autoSeason(mon):o.season; const S=SEASONS[sk];
+  const wkNum=Math.floor(mon.getTime()/(7*864e5));
+  const fmt=d=>d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  const cards=DAYS.map((name,i)=>{
+    const dt=new Date(mon); dt.setDate(mon.getDate()+i); const key=dt.toISOString().slice(0,10);
+    const opts=S.days[i]; const a=opts[(wkNum+i)%opts.length];
+    const done=!!o.done[key];
+    return `<div class="card day"><div class="ic">${a.icon}</div><div class="grow" style="flex:1">
+      <div class="muted">${name} · ${fmt(dt)}</div><h3 class="${done?'done':''}">${esc(a.title)}</h3>
+      <div class="tip">💡 ${esc(a.tip)}</div>
+      <div class="links">
+        <a target="_blank" rel="noopener" href="${mapsUrl(a.q,o)}">📍 Near me (≤20 mi)</a>
+        <a target="_blank" rel="noopener" href="${webUrl(a.q+' within 30 miles of '+o.city+', '+o.st)}">🚗 20-30 mi</a>
+        <a target="_blank" rel="noopener" href="${webUrl('best '+a.q+' for toddlers in '+o.st+' '+sk)}">🗺️ Statewide</a>
+      </div>
+      <label class="row" style="margin-top:8px"><input type="checkbox" ${done?"checked":""} onchange="toggleOuting('${key}')"> We went!</label>
+    </div></div>`}).join("");
+  const weekend=`<div class="card home">🏠 Saturday & Sunday: family home days<br><span class="muted">Everyone together, no plans.</span></div>`;
+  return `<div class="wk"><button class="btn small" onclick="state.outings.week--;save()">← Prev</button>
+      <b>Week of ${fmt(mon)} · ${S.name}</b><button class="btn small" onclick="state.outings.week++;save()">Next →</button></div>
+    <div class="card muted">📍 ${esc(o.city)}, ${esc(o.st)} · Each weekday has a different outing, and the options rotate every week so it never gets stale. They're ideas, and she doesn't have to do them. Weeks with a newborn can be easy: library, park walk, or a cafe playdate.</div>`
+    +cards+weekend+
+    `<div class="card"><details><summary>🇺🇸 Nationwide bucket-list ideas for ${S.name}</summary><ul>${S.nat.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>
+      <a target="_blank" rel="noopener" href="${webUrl(sk+' family events kids '+o.st)}">🗺️ ${S.name} family events in ${esc(o.st)}</a></details></div>
+    <div class="card"><details><summary>⚙️ Settings</summary>
+      <form onsubmit="saveLoc(event)" style="margin-top:10px"><input name="city" value="${esc(o.city)}" required><input name="st" value="${esc(o.st)}" required><button class="btn">Update place</button></form>
+      <select onchange="state.outings.season=this.value;save()">${["auto",...Object.keys(SEASONS)].map(k=>`<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Season: automatic":SEASONS[k].name}</option>`).join("")}</select></details></div>`;
+}
+function saveLoc(e){ const v=f(e); state.outings.city=v.city.trim(); state.outings.st=v.st.trim(); save(); }
+function toggleOuting(k){ state.outings.done[k]=!state.outings.done[k]; save(); }
 
 const f = e => { e.preventDefault(); return Object.fromEntries(new FormData(e.target)); };
 function addEvent(e) { state.events.push({ id: uid(), ...f(e) }); save(); }
