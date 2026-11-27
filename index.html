@@ -123,7 +123,7 @@ input,select{min-height:44px;padding:0 12px;border-radius:12px;border:2px solid 
 let state;
 try { state = JSON.parse(localStorage.getItem("familyhub")); } catch (e) {}
 state = state || {};
-state.tab = ["week","parents","favs","family","settings"].includes(state.tab) ? state.tab : "week";
+state.tab = ["week","parents","favs","settings"].includes(state.tab) ? state.tab : "week";
 state.members = state.members || []; state.events = state.events || []; state.chores = state.chores || []; state.shopping = state.shopping || [];
 const o = state.outings = state.outings || {};
 o.city = o.city || ""; o.st = o.st || ""; o.season = o.season || "auto"; o.week = 0;
@@ -444,7 +444,7 @@ const IC = {
   family:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
   settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
 };
-const TABS = [["week","This week"],["parents","Parents"],["favs","Favorites"],["family","Family"],["settings","Settings"]];
+const TABS = [["week","This week"],["parents","Parents"],["favs","Favorites"],["settings","Settings"]];
 
 // ---------- views ----------
 function setupView(p) {
@@ -501,7 +501,7 @@ function weekView() {
     <h3 class="sec">Bucket list: ${p.name} trips</h3>
     <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div></div>
     <p class="mut" style="margin-top:18px">These are ideas, not a to-do list. With a newborn, easy weeks are perfect: library, a park walk, or a cafe playdate.</p>
-    <p class="mut" style="text-align:center">Version 7 · schedule checked ${CHECKED}</p>
+    <p class="mut" style="text-align:center">Version 8 · schedule checked ${CHECKED}</p>
   </main>`;
 }
 const money = n => (+n).toFixed(+n % 1 ? 2 : 0);
@@ -550,21 +550,6 @@ const member = id => state.members.find(m => m.id === id);
 const COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#a855f7","#ec4899"];
 const mopts = all => (all ? '<option value="">Everyone</option>' : "") + state.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join("");
 const who = id => { const m = member(id); return m ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLORS.includes(m.color)?m.color:"#999"}"></span> ${esc(m.name)}` : "Everyone"; };
-function familyView() {
-  const p = weekData().p, t = state.ftab;
-  const seg = [["calendar","Calendar"],["chores","Chores"],["shopping","Shopping"],["members","Members"]].map(([k,l]) => `<button class="${t===k?"on":""}" data-ftab="${k}">${l}</button>`).join("");
-  let c = "";
-  if (t === "calendar") c = `<form data-f="event"><input name="title" placeholder="Event (e.g. Pediatrician)" required><div class="two"><input name="date" type="date" required><input name="time" type="time"></div><select name="who">${mopts(true)}</select><button class="btn">Add event</button></form>` +
-    ([...state.events].sort((a,b) => ((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||""))).map(e => `<div class="li"><div class="g"><b>${esc(e.title)}</b><div class="mut">${esc(e.date)} ${esc(e.time)} · ${who(e.who)}</div></div><button class="x" data-del2="events:${esc(e.id)}">✕</button></div>`).join("") || '<p class="mut">No events yet.</p>');
-  if (t === "chores") c = `<form data-f="chore"><input name="title" placeholder="Chore (e.g. Take out trash)" required><select name="who">${mopts(false)}</select><button class="btn">Add chore</button></form>` +
-    (state.chores.map(x => `<div class="li"><input class="chk" type="checkbox" ${x.done?"checked":""} data-tog="chores:${esc(x.id)}"><div class="g"><span class="${x.done?"strike":""}">${esc(x.title)}</span><div class="mut">${who(x.who)}</div></div><button class="x" data-del2="chores:${esc(x.id)}">✕</button></div>`).join("") || '<p class="mut">No chores yet.</p>');
-  if (t === "shopping") c = `<form data-f="item"><input name="title" placeholder="Add item (e.g. Diapers)" required><button class="btn">Add</button></form>` +
-    (state.shopping.map(x => `<div class="li"><input class="chk" type="checkbox" ${x.done?"checked":""} data-tog="shopping:${esc(x.id)}"><span class="g ${x.done?"strike":""}">${esc(x.title)}</span><button class="x" data-del2="shopping:${esc(x.id)}">✕</button></div>`).join("") || '<p class="mut">List is empty.</p>') +
-    (state.shopping.some(x => x.done) ? '<div class="row"><button class="chip" data-clear="1">Clear checked</button></div>' : "");
-  if (t === "members") c = `<form data-f="member"><input name="name" placeholder="Name (e.g. Mom)" required><button class="btn">Add</button></form>` +
-    (state.members.map(m => `<div class="li"><span class="g">${who(m.id)}</span><button class="x" data-del2="members:${esc(m.id)}">✕</button></div>`).join("") || '<p class="mut">Add your family.</p>');
-  return plainBand("Family", "Calendar, chores and shopping", p) + `<main><div class="seg">${seg}</div><div class="card">${c}</div></main>`;
-}
 function settingsView() {
   const p = weekData().p, n = Object.keys(o.photos).length + o.favs.filter(f => f.photo).length;
   return plainBand("Settings", "Location and season", p) + `<main><div class="card"><h2 style="font-size:22px">Your area</h2>
@@ -579,7 +564,7 @@ function settingsView() {
       <select data-local="1">${[["auto","Automatic (from your city)"],["on","Always show Lebanon-area schedule"],["off","Turn off"]].map(([k,l]) => `<option value="${k}" ${o.local===k?"selected":""}>${l}</option>`).join("")}</select></div>
     <div class="card"><h2 style="font-size:22px">Season</h2><p class="mut">Automatic follows the calendar. Pick one to preview other seasons.</p>
       <select data-season="1">${["auto",...Object.keys(PAL)].map(k => `<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Automatic":PAL[k].name}</option>`).join("")}</select></div>
-    <p class="mut" style="text-align:center;margin-top:16px">Version 7 · schedule checked ${CHECKED}</p>
+    <p class="mut" style="text-align:center;margin-top:16px">Version 8 · schedule checked ${CHECKED}</p>
     <div class="card"><h2 style="font-size:22px">On this phone</h2><p class="mut">Photos, favorites, friends and checkmarks are saved on this phone only (${n} photo${n===1?"":"s"} saved).</p></div></main>`;
 }
 
@@ -605,7 +590,7 @@ function tutView() {
       <button class="btn" data-tut="next">${last ? (o.city ? "Start exploring" : "Set my location") : "Next"}</button></div></div></div></div>`;
 }
 
-const views = {week:weekView, parents:parentsView, favs:favsView, family:familyView, settings:settingsView};
+const views = {week:weekView, parents:parentsView, favs:favsView, settings:settingsView};
 function render() {
   gid = 0;
   if (!PAL[o.season]) o.season = "auto";
