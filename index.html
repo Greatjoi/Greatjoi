@@ -121,7 +121,7 @@ state.tab = ["week","parents","favs","family","settings"].includes(state.tab) ? 
 state.members = state.members || []; state.events = state.events || []; state.chores = state.chores || []; state.shopping = state.shopping || [];
 const o = state.outings = state.outings || {};
 o.city = o.city || ""; o.st = o.st || ""; o.season = o.season || "auto"; o.week = 0;
-o.done = o.done || {}; o.favs = o.favs || []; o.friends = o.friends || []; o.swap = o.swap || {}; o.photos = o.photos || {}; o.spent = o.spent || {}; o.budget = o.budget || {week:0, day:0, freeOnly:false};
+o.done = o.done || {}; o.favs = o.favs || []; o.friends = o.friends || []; o.swap = o.swap || {}; o.photos = o.photos || {}; o.local = o.local || "auto"; o.spent = o.spent || {}; o.budget = o.budget || {week:0, day:0, freeOnly:false};
 state.ftab = state.ftab || "calendar";
 let sel = null, anim = false;
 
@@ -297,7 +297,8 @@ const PLACES = [
  P("ltw","Lake Tobias Wildlife Park",["zoo","farm"],["spring","summer","fall"],35,"760 Tobias Rd, Halifax, PA 17032","Daily May 1 – Labor Day, then weekends only through October. Closed Nov–Apr.",1,"Zoo exhibits $11 · under 3 free",
    "A day trip. The petting zoo is included, and the open-air safari tour is extra.","https://www.laketobias.com","717-362-9126")
 ];
-const inArea = () => AREA.test(o.city) && /^(pa|penn)/i.test(o.st.trim());
+const autoArea = () => { const c = (o.city || "") + " " + (o.st || ""); return /\b17(0|1|5)\d\d\b/.test(c) || (AREA.test(c) && !/\b(oh|ohio|tn|ky|nh|me|or|in|mo|va|nj|ct|il)\b/i.test(o.st || "")); };
+const inArea = () => o.local === "on" ? true : o.local === "off" ? false : autoArea();
 const placesFor = (k, sk) => PLACES.filter(x => x.kinds.includes(k) && x.seasons.includes(sk)).sort((a,b) => a.mi - b.mi);
 const zoneOf = mi => mi <= 20 ? "Near you" : mi <= 30 ? "20–30 mi" : "Day trip";
 const dirUrl = x => "https://www.google.com/maps/search/" + encodeURIComponent(x.name + ", " + x.addr);
@@ -494,6 +495,7 @@ function weekView() {
     <h3 class="sec">Bucket list: ${p.name} trips</h3>
     <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div></div>
     <p class="mut" style="margin-top:18px">These are ideas, not a to-do list. With a newborn, easy weeks are perfect: library, a park walk, or a cafe playdate.</p>
+    <p class="mut" style="text-align:center">Version 6 · schedule checked ${CHECKED}</p>
   </main>`;
 }
 const money = n => (+n).toFixed(+n % 1 ? 2 : 0);
@@ -566,8 +568,11 @@ function settingsView() {
       <label class="mut">Per day<div class="sprow"><span>$</span><input name="day" type="number" inputmode="decimal" min="0" step="1" value="${o.budget.day || ""}" placeholder="No limit"></div></label></div>
       <label class="tog"><input class="chk" type="checkbox" name="freeOnly" ${o.budget.freeOnly ? "checked" : ""}> Free outings only</label>
       <button class="btn">Save budget</button></form></div>
+    <div class="card"><h2 style="font-size:22px">Local schedule</h2><p class="mut">Real storytimes, programs and events for the Lebanon, PA area. It's ${inArea() ? "<b>on</b>" : "<b>off</b>"} right now.</p>
+      <select data-local="1">${[["auto","Automatic (from your city)"],["on","Always show Lebanon-area schedule"],["off","Turn off"]].map(([k,l]) => `<option value="${k}" ${o.local===k?"selected":""}>${l}</option>`).join("")}</select></div>
     <div class="card"><h2 style="font-size:22px">Season</h2><p class="mut">Automatic follows the calendar. Pick one to preview other seasons.</p>
       <select data-season="1">${["auto",...Object.keys(PAL)].map(k => `<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Automatic":PAL[k].name}</option>`).join("")}</select></div>
+    <p class="mut" style="text-align:center;margin-top:16px">Version 6 · schedule checked ${CHECKED}</p>
     <div class="card"><h2 style="font-size:22px">On this phone</h2><p class="mut">Photos, favorites, friends and checkmarks are saved on this phone only (${n} photo${n===1?"":"s"} saved).</p></div></main>`;
 }
 
@@ -630,6 +635,7 @@ document.addEventListener("change", async e => {
   if (t.dataset.photo && t.files[0]) { try { o.photos[t.dataset.photo] = await shrink(t.files[0]); save(); } catch (err) { toast("That photo couldn't be opened. Try another one.", ""); } }
   else if (t.dataset.tog) { const [l, id] = t.dataset.tog.split(":"); const x = state[l].find(x => x.id === id); if (x) { x.done = !x.done; save(); } }
   else if (t.dataset.season) { o.season = t.value; save(); }
+  else if (t.dataset.local) { o.local = t.value; save(); }
 });
 document.addEventListener("submit", async e => {
   const fm = e.target.closest("form[data-f]"); if (!fm) return;
