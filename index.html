@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family Hub Outings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm, playful, confident, like a family picture book
+   IDEA: a picture-book week planner, one illustrated page per day
+   PICTURE: a big hand-drawn scene of the chosen day's outing (or her own photo)
+   COLOUR and TYPE: season colours lead the band (spring green, summer blue, fall rust, winter navy); Fredoka + Nunito
+   LAYOUT: season band with week calendar strip, big day page, whole-week list, bottom tab bar */
+:root{color-scheme:light dark;--bg:light-dark(#fffaf2,#15130f);--card:light-dark(#ffffff,#211e19);--ink:light-dark(#1d1a16,#f5efe6);--mut:light-dark(#6f665b,#b3a998);--line:light-dark(#efe5d6,#34302a);--band:#2f8f5b;--acc:#ff6f91;--soft:light-dark(#fff3e4,#2a251e)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip;padding-bottom:88px}
+h1,h2,h3,.f{font-family:Fredoka,Nunito,sans-serif;margin:0;line-height:1.08;text-wrap:balance}
+button,input,select{font:inherit;color:inherit}
+.band{background:var(--band);color:#fff;padding:18px max(4vw,14px) 22px;transition:background .4s}
+.wrap{max-width:760px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top h1{font-size:clamp(26px,6vw,36px);font-weight:700}
+.sub{opacity:.9;font-weight:700;font-size:14px}
+.nav{display:flex;gap:6px}
+.nav button{width:44px;height:44px;border-radius:50%;border:2px solid #ffffff66;background:#ffffff1f;color:#fff;font-size:20px;cursor:pointer}
+.nav button:focus-visible,.cell:focus-visible,.btn:focus-visible,.chip:focus-visible,.tabs button:focus-visible{outline:3px solid #ffd34d;outline-offset:2px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:16px}
+.cell{border:0;border-radius:16px;background:#ffffff26;color:#fff;padding:8px 2px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:44px}
+.cell .dn{font-size:12px;font-weight:800;opacity:.85}
+.cell .dd{font-family:Fredoka,Nunito,system-ui,sans-serif;font-size:20px;font-weight:600;line-height:1}
+.cell .th{width:100%;max-width:46px;aspect-ratio:1;border-radius:50%;overflow:hidden;border:2px solid #ffffff80;position:relative}
+.cell .th svg,.cell .th img{width:100%;height:100%;display:block;object-fit:cover}
+.cell .ok{position:absolute;right:-1px;bottom:-1px;width:18px;height:18px;border-radius:50%;background:#22c55e;color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid #fff}
+.cell.on{background:#fff;color:var(--band)}
+.cell.on .th{border-color:var(--band)}
+.cell.today .dn::after{content:" •"}
+main{max-width:760px;margin:0 auto;padding:0 max(4vw,14px)}
+.page{background:var(--card);border-radius:24px;margin-top:-6px;overflow:hidden;box-shadow:0 10px 30px #0000001a;border:1px solid var(--line);position:relative;top:14px}
+.hero{aspect-ratio:16/10;position:relative;background:var(--soft)}
+.hero svg,.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.tag{position:absolute;left:14px;top:14px;background:#fff;color:#1d1a16;border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px;box-shadow:0 2px 8px #0002}
+.tag.fav{background:#f59e0b;color:#fff;left:auto;right:14px}
+.body{padding:18px 18px 20px}
+.body h2{font-size:clamp(26px,6.5vw,34px);font-weight:700}
+.when{color:var(--mut);font-weight:800;font-size:14px;margin-bottom:6px}
+.note{border-radius:16px;padding:12px 14px;margin-top:12px;font-size:15px}
+.note b{display:block;font-family:Fredoka,Nunito,system-ui,sans-serif;font-weight:600;font-size:16px;margin-bottom:2px}
+.n1{background:var(--soft)}
+.n2{background:light-dark(#e8f8ef,#17281f)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:var(--card);font-weight:800;font-size:14px;text-decoration:none;color:var(--ink);cursor:pointer}
+.chip.go{background:var(--band);border-color:var(--band);color:#fff}
+.chip.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.btn{min-height:44px;padding:0 18px;border:0;border-radius:14px;background:var(--band);color:#fff;font-weight:800;cursor:pointer}
+h3.sec{font-size:22px;font-weight:600;margin:40px 0 10px}
+.list{display:grid;gap:10px}
+.item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px;cursor:pointer;text-align:start;width:100%}
+.item .pic{width:92px;flex:none;aspect-ratio:16/11;border-radius:12px;overflow:hidden;position:relative}
+.item .pic svg,.item .pic img{width:100%;height:100%;display:block;object-fit:cover}
+.item .t{font-family:Fredoka,Nunito,system-ui,sans-serif;font-weight:600;font-size:17px;line-height:1.15}
+.item .d{font-size:13px;color:var(--mut);font-weight:800}
+.item .s{margin-left:auto;font-size:13px;font-weight:800;color:#16a34a;padding-right:6px;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:12px}
+.mut{color:var(--mut);font-size:14px}
+form{display:grid;gap:8px;margin-top:10px}
+input,select{min-height:44px;padding:0 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);font-size:16px;width:100%}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.li{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.li .ph{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none;background:var(--soft);overflow:hidden}
+.li .ph svg{width:100%;height:100%}
+.li .g{flex:1}
+.x{width:44px;height:44px;border:0;background:none;color:var(--mut);font-size:20px;cursor:pointer;flex:none}
+.grp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.grp a{display:block;padding:12px;border-radius:14px;background:var(--soft);color:var(--ink);text-decoration:none;font-weight:800;font-size:14px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+.tabs button{flex:1;max-width:130px;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:800;color:var(--mut);padding:6px 0;cursor:pointer;min-height:52px}
+.tabs svg{width:24px;height:24px}
+.tabs button.on{color:var(--band)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.seg button{min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:var(--card);font-weight:800;cursor:pointer}
+.seg button.on{background:var(--band);border-color:var(--band);color:#fff}
+.bud{margin-top:14px;background:#00000024;border-radius:16px;padding:10px 12px}
+.bt{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px}
+.bt.sm{margin-top:8px;font-size:13px;opacity:.95}
+.meter{height:10px;border-radius:99px;background:#ffffff40;margin-top:8px;overflow:hidden}.meter i{display:block;height:100%;border-radius:99px}
+.mini{min-height:36px;padding:0 12px;border-radius:999px;border:2px solid #ffffff80;background:none;color:#fff;font-weight:800;font-size:13px;cursor:pointer}
+.mini.on{background:#fff;color:var(--band);border-color:#fff}
+.cost{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:800;font-size:12px;white-space:nowrap;vertical-align:middle}
+.c0{background:#dcfce7;color:#166534}.c1{background:#fef9c3;color:#854d0e}.c2{background:#ffedd5;color:#9a3412}.c3{background:#fee2e2;color:#991b1b}
+.price{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:10px;font-weight:800;font-size:15px}.price .mut{width:100%;font-weight:600;font-size:13px}
+.spend{margin-top:14px;background:var(--soft);border-radius:16px;padding:12px 14px;gap:6px}.spend label{font-family:Fredoka,Nunito,sans-serif;font-weight:600}
+.sprow{display:flex;align-items:center;gap:8px}.sprow span{font-weight:800}
+.item .s2{margin-left:auto}.item .s2+.s{margin-left:0}
+.plc.pick{border-color:var(--band)}.plc.ev{border-style:dashed}
+.places{margin-top:18px}.places h3{font-size:20px;font-weight:600;margin-bottom:2px}
+.plc{border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:10px;background:var(--card)}
+.ph1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:16px}
+.pl{display:flex;gap:8px;font-size:14px;margin-top:5px;line-height:1.4}.pl>span:first-child{flex:none;width:18px}
+.tut{position:fixed;inset:0;z-index:20;background:#0009;display:grid;place-items:center;padding:16px;overflow:auto}
+.tcard{background:var(--card);border-radius:24px;max-width:440px;width:100%;overflow:hidden;box-shadow:0 20px 50px #0006}
+.tpic{aspect-ratio:16/10}.tpic svg{width:100%;height:100%;display:block}
+.tbody{padding:18px 20px 20px}.tbody h2{font-size:26px;font-weight:700;margin:4px 0 8px}.tbody p{margin:0;font-size:16px}
+.dots{display:flex;gap:6px;justify-content:center;margin:16px 0 4px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--band);width:22px;border-radius:99px}
+.trow{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
+.tog{display:flex;align-items:center;gap:10px;font-weight:800;min-height:44px}
+.chk{width:24px;height:24px;flex:none;min-height:0;accent-color:var(--band)}
+.strike{text-decoration:line-through;color:var(--mut)}
+#toast{display:none;position:fixed;left:12px;right:12px;bottom:84px;max-width:560px;margin:0 auto;z-index:9;box-shadow:0 10px 30px #0004}
+.home-h{font-size:clamp(26px,6.5vw,34px)}
+@media(prefers-reduced-motion:no-preference){.hero.anim>*{animation:pop .4s ease}@keyframes pop{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}}
+@media(max-width:420px){.cell .dd{font-size:17px}.cell{border-radius:12px}.cal{gap:4px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav class="tabs" id="tabs"></nav>
+<div id="toast" class="card"><b class="f" style="font-size:18px">Invite message</b><p id="tmsg" style="user-select:all;margin:8px 0"></p><div class="mut" id="tst"></div><div class="row"><button class="btn" id="tclose">Close</button></div></div>
+<script>
+{
+// ---------- state ----------
+let state;
+try { state = JSON.parse(localStorage.getItem("familyhub")); } catch (e) {}
+state = state || {};
+state.tab = ["week","parents","favs","family","settings"].includes(state.tab) ? state.tab : "week";
+state.members = state.members || []; state.events = state.events || []; state.chores = state.chores || []; state.shopping = state.shopping || [];
+const o = state.outings = state.outings || {};
+o.city = o.city || ""; o.st = o.st || ""; o.season = o.season || "auto"; o.week = 0;
+o.done = o.done || {}; o.favs = o.favs || []; o.friends = o.friends || []; o.swap = o.swap || {}; o.photos = o.photos || {}; o.local = o.local || "auto"; o.spent = o.spent || {}; o.budget = o.budget || {week:0, day:0, freeOnly:false};
+state.ftab = state.ftab || "calendar";
+let sel = null, anim = false;
+
+const toast = (msg, status) => { document.getElementById("tmsg").textContent = msg; document.getElementById("tst").textContent = status || ""; document.getElementById("toast").style.display = "block"; };
+document.getElementById("tclose").onclick = () => document.getElementById("toast").style.display = "none";
+function save() {
+  try { localStorage.setItem("familyhub", JSON.stringify(state)); }
+  catch (e) { toast("Your phone's storage for this page is full. Remove a few photos to add more.", ""); }
+  render();
+}
+const uid = () => Math.random().toString(36).slice(2, 9);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const okPhoto = u => typeof u === "string" && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(u);
+
+// ---------- palettes ----------
+const PAL = {
+  spring:{band:"#2f8f5b",acc:"#ff6f91",sky:["#a8e0ff","#e8f7ff"],sun:"#ffd34d",g1:"#86d06f",g2:"#5fb45a",tree:"#3f9b4f",name:"Spring"},
+  summer:{band:"#0a74c4",acc:"#ff8a00",sky:["#4dbdff","#c4ecff"],sun:"#ffd23f",g1:"#94d36c",g2:"#6cba4c",tree:"#2f8f3f",name:"Summer"},
+  fall:{band:"#a8400f",acc:"#e11d48",sky:["#ffbf7a","#ffeccf"],sun:"#fff1b8",g1:"#d8a548",g2:"#b8822c",tree:"#d9622b",name:"Fall"},
+  winter:{band:"#1e3a7a",acc:"#e11d48",sky:["#9ec5ee","#e7f1fb"],sun:"#ffffff",g1:"#f4f8fc",g2:"#d6e3f1",tree:"#2f6b5a",name:"Winter"}
+};
+
+// ---------- illustrations ----------
+let gid = 0;
+const tri = (x, y, s, c) => `<rect x="${x-3}" y="${y}" width="6" height="${s*.7}" fill="#7c4a1e"/><path d="M${x-s} ${y+2}L${x} ${y-s*2.2}L${x+s} ${y+2}Z" fill="${c}"/>`;
+const building = (wall, roof, door) => `<rect x="96" y="88" width="128" height="70" fill="${wall}"/><path d="M84 90L160 52L236 90Z" fill="${roof}"/>` +
+  [108,132,180,204].map(x => `<rect x="${x}" y="96" width="9" height="58" fill="#fff" opacity=".8"/>`).join("") +
+  `<rect x="148" y="116" width="24" height="42" rx="12" fill="${door}"/><rect x="88" y="156" width="144" height="7" rx="2" fill="#0000002a"/>`;
+const cube = (x, y, s, c, l) => `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="6" fill="${c}"/><text x="${x+s/2}" y="${y+s*.72}" font-size="${s*.6}" text-anchor="middle" fill="#fff" font-family="Fredoka, Nunito, sans-serif" font-weight="700">${l}</text>`;
+const fish = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse rx="22" ry="12" fill="${c}"/><path d="M18 0L34-12V12Z" fill="${c}"/><circle cx="-10" cy="-3" r="3.2" fill="#fff"/><circle cx="-10.5" cy="-3" r="1.6" fill="#111"/></g>`;
+const pk = (x, y, r) => `<ellipse cx="${x}" cy="${y}" rx="${r*1.3}" ry="${r}" fill="#f97316"/><ellipse cx="${x}" cy="${y}" rx="${r*.45}" ry="${r}" fill="#fdba74" opacity=".5"/><rect x="${x-2}" y="${y-r-7}" width="4" height="9" rx="2" fill="#4d7c0f"/>`;
+const note = (x, y, c) => `<ellipse cx="${x}" cy="${y}" rx="9" ry="7" fill="${c}" transform="rotate(-20 ${x} ${y})"/><rect x="${x+6}" y="${y-38}" width="3.5" height="38" fill="${c}"/><path d="M${x+9} ${y-38}q14 6 12 20q-3-10-12-11z" fill="${c}"/>`;
+const ART = {
+  books: p => ART.library(p),
+  library: p => ({fg: building("#f6e6c8","#b45309","#7c2d12") + `<g transform="translate(240 150)"><rect width="46" height="10" rx="2" fill="#ef4444"/><rect x="4" y="-10" width="40" height="10" rx="2" fill="#3b82f6"/><rect x="-2" y="-20" width="44" height="10" rx="2" fill="#f59e0b"/><rect x="6" y="-30" width="34" height="10" rx="2" fill="#10b981"/></g>`}),
+  museum: p => ({fg: building("#eceff3","#475569","#1e293b") + `<line x1="160" y1="52" x2="160" y2="28" stroke="#334155" stroke-width="2.5"/><path d="M160 28h22l-6 7 6 7h-22z" fill="${p.acc}"/>`}),
+  blocks: p => ({fg: cube(102,118,40,"#ef4444","A") + cube(146,118,40,"#3b82f6","B") + cube(124,76,40,"#f59e0b","C") + `<circle cx="226" cy="140" r="20" fill="${p.acc}"/><path d="M206 140h40M226 120c10 10 10 30 0 40" stroke="#fff" stroke-width="3" fill="none"/>`}),
+  zoo: p => ({fg: tri(64,128,26,p.tree) + `${[150,160,192,202].map(x=>`<rect x="${x}" y="126" width="7" height="34" rx="3" fill="#e0a13a"/>`).join("")}<ellipse cx="176" cy="122" rx="34" ry="17" fill="#f2b544"/><path d="M196 116L216 58L227 61L211 122Z" fill="#f2b544"/><ellipse cx="229" cy="57" rx="15" ry="8" fill="#f2b544"/><path d="M224 50l-2-10M231 50l1-10" stroke="#8a4b12" stroke-width="3" stroke-linecap="round"/><circle cx="236" cy="55" r="2" fill="#111"/>${[[165,116],[182,126],[194,114],[212,80],[208,98],[156,126]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#b8691f"/>`).join("")}`}),
+  fish: p => ({bg: `<rect width="320" height="200" fill="#0b78bf"/><rect width="320" height="70" fill="#47b3ef" opacity=".55"/><path d="M0 180Q160 164 320 180V200H0Z" fill="#e9cc8e"/>`,
+    fg: `<path d="M40 182q-12-30 4-60q12-24-2-44M64 182q10-26-4-50M268 182q-14-34 6-70" stroke="#16a34a" stroke-width="6" fill="none" stroke-linecap="round"/>` + fish(130,90,1.4,"#ff8a3d") + fish(210,130,1,"#facc15") + fish(220,62,.8,"#f472b6") + fish(96,144,.7,"#a78bfa") + [[112,60,5],[118,44,3],[200,40,4],[252,100,3]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#fff" stroke-width="2" opacity=".8"/>`).join("")}),
+  farm: p => ({fg: `<rect x="112" y="96" width="96" height="62" fill="#c0392b"/><path d="M102 100L160 62L218 100Z" fill="#8e2a20"/><rect x="142" y="118" width="36" height="40" fill="#fff"/><path d="M142 118L178 158M178 118L142 158" stroke="#c0392b" stroke-width="4"/><rect x="220" y="84" width="30" height="74" fill="#d6d3d1"/><path d="M220 84a15 15 0 0 1 30 0Z" fill="#78716c"/>` + [24,48,72].map(x=>`<rect x="${x}" y="138" width="5" height="24" fill="#fff"/>`).join("") + `<rect x="18" y="142" width="64" height="4" fill="#fff"/><rect x="18" y="152" width="64" height="4" fill="#fff"/><ellipse cx="270" cy="158" rx="16" ry="11" fill="#fff"/><circle cx="286" cy="152" r="7" fill="#3f3f46"/>`}),
+  flowers: p => ({fg: [0,1].map(r => Array.from({length:9},(_, i) => { const x = 28 + i*33 + r*16, y = 140 + r*16, c = [p.acc,"#facc15","#f472b6","#a855f7"][(i+r)%4];
+    return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+28}" stroke="#2f7d32" stroke-width="3"/><path d="M${x-8} ${y}Q${x-9} ${y-15} ${x-4} ${y-17}L${x} ${y-10}L${x+4} ${y-17}Q${x+9} ${y-15} ${x+8} ${y}Q${x} ${y+6} ${x-8} ${y}Z" fill="${c}"/>`; }).join("")).join("")}),
+  park: p => ({fg: tri(270,124,24,p.tree) + `<path d="M40 160L62 92L84 160M62 92h60M100 160L122 92L144 160" stroke="#64748b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M80 92v34M104 92v34" stroke="#94a3b8" stroke-width="2"/><rect x="74" y="124" width="36" height="6" rx="3" fill="${p.acc}"/><rect x="162" y="96" width="36" height="8" rx="2" fill="#f59e0b"/><path d="M166 104v56M194 104v56M166 116h28M166 130h28M166 144h28" stroke="#64748b" stroke-width="4"/><path d="M196 100q30 4 40 56" stroke="${p.acc}" stroke-width="11" fill="none" stroke-linecap="round"/>`}),
+  splash: p => ({fg: `<ellipse cx="160" cy="166" rx="128" ry="16" fill="#7dd3fc"/>` + [[100,-26],[100,26],[160,-34],[160,34],[220,-26],[220,26]].map(([x,d])=>`<path d="M${x} 164Q${x+d} 86 ${x+d*1.6} 164" stroke="#38bdf8" stroke-width="5" fill="none" stroke-linecap="round"/>`).join("") + [[120,84],[200,90],[160,70],[90,110],[240,112]].map(([x,y])=>`<path d="M${x} ${y-8}q6 9 0 14q-6-5 0-14z" fill="#0ea5e9"/>`).join("")}),
+  pool: p => ({bg: `<rect width="320" height="200" fill="#e0f2fe"/>${Array.from({length:8},(_, i)=>`<path d="M${i*40} 0v100" stroke="#bae6fd" stroke-width="2"/>`).join("")}<rect y="96" width="320" height="104" fill="#38bdf8"/><path d="M0 100q20-8 40 0t40 0t40 0t40 0t40 0t40 0t40 0t40 0" stroke="#e0f2fe" stroke-width="4" fill="none"/>`,
+    fg: `<circle cx="196" cy="128" r="24" fill="none" stroke="${p.acc}" stroke-width="12"/><circle cx="196" cy="128" r="24" fill="none" stroke="#fff" stroke-width="12" stroke-dasharray="12 26"/><path d="M60 40v90M86 40v90M60 60h26M60 82h26M60 104h26" stroke="#94a3b8" stroke-width="5"/>`}),
+  beach: p => ({bg: `<defs><linearGradient id="bk${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.sky[0]}"/><stop offset="1" stop-color="${p.sky[1]}"/></linearGradient></defs><rect width="320" height="200" fill="url(#bk${gid})"/><circle cx="262" cy="44" r="20" fill="${p.sun}"/><rect y="104" width="320" height="50" fill="#0ea5e9"/><path d="M0 112q40-6 80 0t80 0t80 0t80 0" stroke="#bae6fd" stroke-width="3" fill="none"/><path d="M0 146Q160 128 320 146V200H0Z" fill="#fde68a"/>`,
+    fg: `<line x1="150" y1="78" x2="164" y2="170" stroke="#57534e" stroke-width="4"/><path d="M96 92Q150 40 206 70Z" fill="${p.acc}"/><path d="M134 74Q150 48 168 52L170 80Z" fill="#fff"/><path d="M222 154h28l-4 22h-20z" fill="#f43f5e"/><path d="M226 154q10-14 20 0" stroke="#f43f5e" stroke-width="3" fill="none"/>`}),
+  market: p => ({fg: Array.from({length:6},(_, i)=>`<rect x="${88+i*24}" y="76" width="24" height="24" fill="${i%2?"#fff":p.acc}"/><path d="M${88+i*24} 100a12 10 0 0 0 24 0z" fill="${i%2?"#fff":p.acc}"/>`).join("") + `<path d="M94 110v50M226 110v50" stroke="#78350f" stroke-width="5"/><rect x="86" y="128" width="148" height="32" rx="4" fill="#92400e"/>` + [[106,"#ef4444"],[124,"#f97316"],[142,"#84cc16"],[160,"#ef4444"],[178,"#facc15"],[196,"#a855f7"],[214,"#84cc16"]].map(([x,c])=>`<circle cx="${x}" cy="122" r="9" fill="${c}"/>`).join("")}),
+  music: p => ({fg: note(96,100,p.band) + note(140,74,p.acc) + note(232,88,"#f59e0b") + `<ellipse cx="180" cy="128" rx="34" ry="10" fill="#fef3c7"/><path d="M146 128v26a34 10 0 0 0 68 0v-26" fill="#dc2626"/><path d="M146 136l68 20M214 136l-68 20" stroke="#fde68a" stroke-width="2"/><path d="M166 118l-22-28M196 118l20-30" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>`}),
+  trail: p => ({fg: `<path d="M110 200Q176 172 152 150T196 118" stroke="#e7c98d" stroke-width="22" fill="none" stroke-linecap="round"/>` + tri(56,128,24,p.tree) + tri(92,140,18,"#2f855a") + tri(236,124,26,p.tree) + tri(276,138,20,"#2f855a") + tri(208,108,14,"#3f9b4f")}),
+  pumpkin: p => ({fg: `<rect x="44" y="132" width="62" height="28" rx="4" fill="#eab308"/><path d="M44 142h62M44 152h62" stroke="#a16207" stroke-width="2"/>` + pk(140,146,16) + pk(184,150,12) + pk(228,144,19) + pk(84,124,10) + pk(270,156,9)}),
+  orchard: p => ({fg: `<rect x="150" y="96" width="18" height="64" fill="#7c4a1e"/><circle cx="159" cy="78" r="44" fill="#3f9b4f"/><circle cx="124" cy="92" r="26" fill="#3f9b4f"/><circle cx="196" cy="92" r="26" fill="#3f9b4f"/>` + [[140,64],[176,60],[160,92],[122,96],[198,98],[184,80],[132,80]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="6" fill="#dc2626"/>`).join("") + `<path d="M222 140h44l-6 22h-32z" fill="#b45309"/><path d="M226 140q18-22 36 0" stroke="#b45309" stroke-width="4" fill="none"/><circle cx="236" cy="138" r="6" fill="#dc2626"/><circle cx="250" cy="137" r="6" fill="#ef4444"/>`}),
+  cafe: p => ({fg: `<rect x="70" y="140" width="180" height="10" rx="4" fill="#92400e"/><path d="M90 150v14M230 150v14" stroke="#92400e" stroke-width="6"/><rect x="110" y="104" width="38" height="36" rx="6" fill="#fff"/><path d="M148 112q16 6 0 18" stroke="#fff" stroke-width="5" fill="none"/><rect x="176" y="112" width="32" height="28" rx="6" fill="${p.acc}"/><path d="M208 118q13 5 0 14" stroke="${p.acc}" stroke-width="4" fill="none"/><path d="M122 96q-8-12 0-22t0-22M136 96q-8-12 0-22M190 104q-7-10 0-18" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>`}),
+  lights: p => ({bg: `<rect width="320" height="200" fill="#122046"/>` + [[30,20],[80,40],[140,16],[200,34],[290,22],[250,60],[110,64]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.8" fill="#fff"/>`).join("") + `<path d="M0 160Q160 140 320 160V200H0Z" fill="#eef4fb"/>`,
+    fg: `<path d="M0 50Q40 78 80 50T160 50T240 50T320 50" stroke="#94a3b8" stroke-width="2" fill="none"/>` + Array.from({length:12},(_, i)=>{const x=14+i*26,y=50+Math.sin((x/80)*Math.PI)*14;return `<circle cx="${x}" cy="${y+8}" r="6" fill="${["#ef4444","#facc15","#22c55e","#38bdf8"][i%4]}"/>`}).join("") + `<path d="M160 70L120 150h80Z" fill="#166534"/>` + [[150,104,"#facc15"],[170,124,"#ef4444"],[140,136,"#38bdf8"],[178,144,"#facc15"]].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="4.5" fill="${c}"/>`).join("") + `<path d="M160 60l4 9h9l-7 6 3 9-9-6-9 6 3-9-7-6h9z" fill="#facc15"/>`}),
+  snow: p => ({fg: tri(60,126,22,p.tree) + tri(266,132,20,p.tree) + `<circle cx="160" cy="138" r="26" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><circle cx="160" cy="100" r="19" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><circle cx="160" cy="70" r="14" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><rect x="146" y="50" width="28" height="6" fill="#1f2937"/><rect x="151" y="34" width="18" height="18" fill="#1f2937"/><path d="M142 84h36l-6 6h8v14h-8" fill="none" stroke="${p.acc}" stroke-width="7" stroke-linecap="round"/><circle cx="155" cy="67" r="2" fill="#111"/><circle cx="165" cy="67" r="2" fill="#111"/><path d="M160 72l12 3-12 2z" fill="#f97316"/>`}),
+  home: p => ({fg: `<rect x="110" y="96" width="100" height="62" fill="#fef3c7"/><path d="M98 100L160 54L222 100Z" fill="${p.band}"/><rect x="186" y="58" width="14" height="26" fill="#9a3412"/><rect x="148" y="118" width="24" height="40" rx="3" fill="#9a3412"/><rect x="120" y="110" width="20" height="18" rx="2" fill="#facc15"/><rect x="180" y="110" width="20" height="18" rx="2" fill="#facc15"/><path d="M193 46c-6-8-18-2-10 8l10 9 10-9c8-10-4-16-10-8z" fill="${p.acc}"/>`})
+};
+function art(kind, p, photo) {
+  if (okPhoto(photo)) return `<img src="${photo}" alt="">`;
+  const id = "g" + (gid++);
+  const r = (ART[kind] || ART.park)(p);
+  const bg = r.bg !== undefined ? r.bg :
+    `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.sky[0]}"/><stop offset="1" stop-color="${p.sky[1]}"/></linearGradient></defs><rect width="320" height="200" fill="url(#${id})"/><circle cx="268" cy="44" r="20" fill="${p.sun}"/><path d="M0 146Q80 118 160 142T320 134V200H0Z" fill="${p.g2}"/><path d="M0 164Q100 144 200 160T320 156V200H0Z" fill="${p.g1}"/>`;
+  return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${bg}${r.fg}</svg>`;
+}
+
+// ---------- activities ----------
+const D = (k, title, q, tip, c) => ({k, title, q, tip, c});
+const COST = ["Free","$","$$","$$$"], COSTR = ["Free","About $5–15","About $15–40","About $40+"], COSTV = [0,10,25,50];
+const costTag = c => `<span class="cost c${c}">${COST[c]}</span>`;
+const LIB = [D("library","Library toddler story time","library story time toddlers","Easy even with a newborn. Songs, a book, and play time after.",0),D("books","Bookstore story hour","bookstore children story hour","Usually free and drop-in. Let him pick one board book.",0),D("music","Baby & me music class","baby music class","Look for drop-in days or a free trial class.",2)];
+const SEASONS = {
+ spring:[LIB,
+  [D("blocks","Children's museum","children's museum","Toddler zones are usually gated and gentle. Go right at opening.",2),D("museum","Science center toddler zone","science center kids","Ask at the desk for the under-3 area.",2),D("museum","Art museum family morning","art museum family programs","Many have free, stroller-friendly mornings.",1),D("museum","Free museum day","free museum day kids","Many museums have a free day or free hour each month. Check the calendar.",0)],
+  [D("zoo","Zoo morning","zoo","Animals are most active early, and it's cooler.",2),D("farm","Petting zoo","petting zoo","Spring babies (goats, lambs) are out. Pack hand wipes.",1),D("flowers","Botanical garden","botanical garden","Flat paths are great for the stroller.",1),D("park","Duck pond & park walk","duck pond park","Bring peas or oats for the ducks (not bread).",0)],
+  [D("fish","Aquarium","aquarium","Dim and calm. Toddlers love standing at the big tanks.",3),D("trail","Nature center walk","nature center kids","Short trails. Baby-wearing works well.",0),D("park","Playground picnic","playground","Pack a picnic and invite a mom from story time.",0)],
+  [D("farm","Farm visit: baby animals","farm visit kids","Lambs and chicks in spring. Check hours first.",1),D("flowers","Tulip & flower farm","flower farm u-pick","Check bloom dates before you go.",1),D("market","Farmers market","farmers market","Often has music and kids' activities.",0)]],
+ summer:[
+  [D("library","Library summer reading event","library summer reading toddlers","Free and air-conditioned.",0),LIB[1],D("music","Free concert in the park","free outdoor concert kids","Bring a blanket and snacks.",0)],
+  [D("splash","Splash pad","splash pad","Swim diapers, sunscreen, and a change of clothes.",0),D("pool","Family swim time","public pool toddler swim","Check the family or toddler swim hours.",1),D("blocks","Children's museum","children's museum","Cool and indoors on hot days.",2)],
+  [D("zoo","Zoo (go early)","zoo","Arrive at opening to beat the heat.",2),D("farm","Petting zoo","petting zoo","Shaded and easy for little legs.",1),D("park","Shady park & playground","shaded playground","Pick one with big trees.",0)],
+  [D("beach","Lake or beach day","lake beach kids","Shade tent, sunscreen, and lots of snacks.",0),D("fish","Aquarium","aquarium","Cool escape on a very hot day.",3),D("trail","Early nature walk","nature trail stroller friendly","Go before it gets hot.",0)],
+  [D("orchard","U-pick berry farm","u-pick berry farm","Go early. Toddlers love picking (and eating).",1),D("farm","Farm visit","farm visit kids","Check for shade and hours.",1),D("market","Farmers market","farmers market","Fresh fruit snack included.",0)]],
+ fall:[LIB,
+  [D("blocks","Children's museum","children's museum","Toddler areas are usually separate.",2),D("museum","Science center","science center kids","Check for an under-3 area.",2),D("museum","Art museum family morning","art museum family programs","Often stroller friendly.",1),D("museum","Free museum day","free museum day kids","Many museums have a free day or free hour each month. Check the calendar.",0)],
+  [D("pumpkin","Pumpkin patch","pumpkin patch","Great photo spot. Mid-week is quieter.",1),D("zoo","Zoo","zoo","Cool weather means active animals.",2),D("pumpkin","Fall festival","fall festival kids","Look for toddler-friendly activities.",1),D("park","Duck pond & park walk","duck pond park","Bring peas or oats for the ducks (not bread).",0)],
+  [D("orchard","Apple orchard","apple orchard u-pick","Cider and donuts too.",1),D("trail","Leaf-peeping nature trail","nature trail stroller friendly","Wide paved paths work best.",0),D("fish","Aquarium","aquarium","A good rainy-day fallback.",3)],
+  [D("farm","Farm & hay ride","farm hayride kids","Check for toddler-sized rides.",1),D("farm","Farm visit","farm visit kids","Animals and tractors.",1),D("market","Farmers market","farmers market","Seasonal produce and music.",0)]],
+ winter:[LIB,
+  [D("blocks","Indoor play gym","indoor play gym toddlers","Look for toddler open-play hours.",2),D("blocks","Children's museum","children's museum","Warm and engaging.",2),D("blocks","Indoor playground","indoor playground","Free and easy for a quick outing.",0)],
+  [D("museum","Museum morning","museum family kids","Stroller friendly and heated.",2),D("museum","Science center","science center kids","Check for an under-3 area.",2),D("fish","Aquarium","aquarium","Warm, with calm lights.",3),D("museum","Free museum day","free museum day kids","Many museums have a free day or free hour each month. Check the calendar.",0)],
+  [D("flowers","Conservatory / greenhouse","conservatory botanical garden","A warm, green escape from winter.",1),D("zoo","Zoo indoor exhibits","zoo","Bundle up and head for the indoor houses.",2),D("snow","Bundled-up park walk","park walk","Short and sweet. Hot cocoa after.",0)],
+  [D("cafe","Mom playdate at a cafe","kid friendly cafe","Invite a mom friend from story time.",1),D("pool","Indoor pool","indoor pool family swim","Warm water fun on a cold day.",1),D("lights","Holiday lights & events","holiday lights kids","Check for early, toddler-friendly hours.",1),D("blocks","Mall play area & walk","mall indoor play area","Warm, free, and the stroller rolls easily.",0)]]
+};
+const NAT = {
+  spring:["Cherry blossoms in Washington, DC","National Park wildflowers and Junior Ranger programs","Smithsonian museums (free and stroller-friendly)"],
+  summer:["A National Park Junior Ranger badge","A national seashore or lakeshore day","A heritage train ride"],
+  fall:["A fall foliage drive","A big pumpkin festival","A national wildlife refuge visit"],
+  winter:["A zoo lights event","A snow-play day trip","Museum days in Washington, DC"]
+};
+const SOCIAL = [
+ "Stay 10 minutes after. Ask another mom how old her little one is. It's the easiest opener.",
+ "Look for the parent who comes back every week. Regulars become friends.",
+ "Ask a mom if she'd like to meet here again next week at the same time.",
+ "Compliment something (a carrier, a stroller, a snack idea) and ask where she got it.",
+ "Ask the staff if there's a regular parents' group or playgroup.",
+ "Swap numbers with one parent you clicked with, and save her under Parents.",
+ "Sit near the toddler area. Kids playing side by side start the chat for you.",
+ "Mention the new baby. Other moms love to share tips."];
+const GROUPS = [["MOPS & moms groups","MOPS moms group"],["Church moms & toddlers","church moms group toddlers"],["Library baby groups","library baby toddler playgroup"],["Toddler playgroups","toddler playgroup"],["New-mom circles","new moms support group"],["Meetup mom groups","meetup moms group"]];
+
+// ---------- real places near Lebanon, PA (checked Nov 26, 2026 from official/visitor sites) ----------
+const CHECKED = "Nov 26, 2026";
+const AREA = /lebanon|annville|palmyra|myerstown|cleona|hershey|jonestown|cornwall|schaefferstown|richland|fredericksburg|mount gretna|campbelltown/i;
+const ALL = ["spring","summer","fall","winter"];
+const P = (id, name, kinds, seasons, mi, addr, hours, c, costNote, tip, url, phone) => ({id, name, kinds, seasons, mi, addr, hours, c, costNote, tip, url, phone});
+const PLACES = [
+ P("lcl","Lebanon Community Library",["library"],ALL,0,"125 N 7th St, Lebanon, PA 17046","Mon–Wed 8am–8pm · Thu 8am–7pm · Fri–Sat 8am–5pm · Sun closed",0,"Free",
+   "Smart Start Storytime (babies birth–2) Tuesdays 9:30am, then Preschool Storytime 10:30am. Free, no sign-up.","https://lebanon.lclibs.org","717-273-7624"),
+ P("afl","Annville Free Library",["library"],ALL,6,"216 E Main St, Annville, PA 17003","Mon–Thu 10am–8pm · Fri–Sat 10am–5pm (summer 10am–2pm) · Sun closed",0,"Free",
+   "Smart Start Storytime (birth–2) Wednesdays 10:30am. Free.","https://annville.lclibs.org","717-867-1802"),
+ P("ppl","Palmyra Public Library",["library"],ALL,9,"50 Landings Dr, Suite B, Annville, PA 17003","Mon–Wed 10am–7pm · Thu–Fri 10am–5pm · Sat 9am–4pm (July–Labor Day 9am–1pm)",0,"Free",
+   "Smart Start Storytime Wednesdays 12:15pm (free). Little Explorers Mon & Thu 10:30am ($5, call to register).","https://palmyra.lclibs.org","717-838-1347"),
+ P("mcl","Myerstown Community Library",["library"],ALL,8,"199 N College St, Myerstown, PA 17067","Mon–Tue 10am–5pm · Wed–Thu 10am–7pm · Fri 10am–4pm · Sat 9am–4pm",0,"Free",
+   "Smart Start Storytime (birth–2) Thursdays 11:30am. Preschool Story Time Fridays 10:30am.","https://myerstown.lclibs.org","717-866-2800"),
+ P("rcl","Richland Community Library",["library"],ALL,12,"111 E Main St, Richland, PA 17087","Call for hours",0,"Free",
+   "Smart Start Storytime Thursdays 10:30am. Bookworm Buddies (stories for little readers) Thursdays 1pm.","https://richland.lclibs.org",""),
+ P("mpl","Matthews Public Library",["library"],ALL,12,"102 W Main St, Fredericksburg, PA 17026","Call for hours",0,"Free",
+   "Smart Start Storytime Mondays 10:30am. Preschool Storytime Wednesdays 10am. Has an upstairs toy room.","https://matthews.lclibs.org",""),
+ P("psc","Paramount Sports Complex",["blocks"],ALL,9,"21 Landings Dr, Annville, PA 17003","Mon–Fri 5am–8pm · Sat 7am–5pm · Sun 10am–3pm",1,"Preschool Playtime about $5 a child · Kidmazium about $7 (last listed prices)",
+   "Preschool Playtime (under 5): trampoline, foam pit and soft gym equipment, weekdays 9am–4pm. Kidmazium is a big climbing maze for ages 2–12. Parents stay with kids under 4.","https://visitlebanonvalley.com/business/paramount-sports-complex/","717-838-0330"),
+ P("cmp","Coleman Memorial Park",["park","trail","snow","music"],ALL,1,"1400 W Maple St, Lebanon, PA 17046","Dawn to dusk",0,"Free",
+   "Playground, bike playground, shady trails. Free gospel concerts on summer Sundays (June–Aug) at the amphitheater.","https://www.lebanonpa.org/community/community-pages/coleman-memorial-park","717-272-7271"),
+ P("sdp","Stoever's Dam Park",["park","trail","snow"],ALL,2,"946 Miller St, Lebanon, PA 17046 (entrances off E Maple St)","Dawn to dusk",0,"Free",
+   "Lake with ducks and geese, flat walking paths around the water, picnic pavilions.","https://www.lebanonpa.org/community/community-pages/stoever-s-dam-park",""),
+ P("lfm","Lebanon Farmers Market",["market","cafe"],ALL,0,"35 S 8th St, Lebanon, PA 17042","Thu & Fri 8am–7pm · Sat 7am–3pm",0,"Free to browse",
+   "Indoor, year-round market in a restored 1892 building. Food stands, elevator, free parking in back. Great on cold days.","https://www.lebanonfarmersmarket.com","717-274-3663"),
+ P("pfc","Patches Family Creamery",["farm"],ALL,4,"201 Fonderwhite Rd, Lebanon, PA 17042","Hours change by season. Call or check before you go.",1,"Ice cream about $5",
+   "Working dairy farm: homemade ice cream, animals to see, and a small playground.","https://visitlebanonvalley.com/business/patches-family-creamery/","717-273-1983"),
+ P("gar","Gray's Apple Ridge Orchard",["orchard","pumpkin","farm"],["fall"],10,"144 Greble Rd, Jonestown, PA 17038","Apple season mid-Sept to early Nov. Check hours.",1,"Pay for what you pick",
+   "Pick-your-own pumpkins (pruners and a hose provided), apples, and cows to visit.","https://visitlebanonvalley.com/business_category/fall-markets/",""),
+ P("rmf","Risser-Marvel Farm Market",["pumpkin","farm"],["fall"],7,"2425 Horseshoe Pike, Annville, PA 17003","Pumpkin patch Sept–Oct. Check hours.",1,"Pay for pumpkins",
+   "Short hayride to the pumpkin patch, corn maze, hay bale maze, trike track.","https://visitlebanonvalley.com/things-to-do-this-fall-in-the-lebanon-valley/",""),
+ P("syf","Seyfert's Farm & Orchard",["pumpkin","orchard","farm"],["fall"],3,"1800 E King St, Lebanon, PA 17042","Fall season. Check hours.",1,"Pay for what you pick",
+   "Pumpkin patch, kiddie (mini) corn maze that's perfect for toddlers, tractor hayrides, picnic area.","https://visitlebanonvalley.com/markets-and-orchards/",""),
+ P("hbo","Honey Bear Orchards",["orchard"],["fall"],3,"1819 Thompson Ave, Lebanon, PA 17046","Pick-your-own apples early Sept into Oct. Check hours.",1,"Pay for what you pick",
+   "Six kinds of apples to pick yourself.","https://visitlebanonvalley.com/markets-and-orchards/",""),
+ P("hsm","The Hershey Story Museum",["museum"],ALL,15,"63 W Chocolate Ave, Hershey, PA 17033","Daily 9am–5pm (Jan–Feb 9am–4pm)",2,"Adults $16.50 · ages 2 and under free",
+   "Museums for All: with an EBT card, $5 adults and $3 kids 3–12. Free parking garage behind the museum.","https://hersheystory.org/hours-information/",""),
+ P("hcw","Hershey's Chocolate World",["museum","blocks"],ALL,15,"Next to Hersheypark, Hershey, PA 17033","Open daily from 9am. Closing time changes by day.",0,"Free admission and free tour ride",
+   "The 30-minute Chocolate Tour ride is free with a free candy sample at the end. Go in the first or last two hours of the day. Short-term parking is free.","https://www.chocolateworld.com/plan-your-visit/hours.html",""),
+ P("zoo","ZooAmerica",["zoo"],ALL,15,"201 Park Ave, Hershey, PA 17033","Daily 10am–4:30pm most of the year (later in summer). Closed Thanksgiving & Christmas.",2,"Ages 9–61 $16.50 · ages 3–8 $14.50 · 2 and under free",
+   "Small 11-acre walk-through zoo of North American animals. Easy with a stroller. Free parking.","https://www.zooamerica.com",""),
+ P("hgd","Hershey Gardens & Butterfly Atrium",["flowers"],ALL,15,"170 Hotel Rd, Hershey, PA 17033","Daily from 9am; closes 4–6pm by season. Closed Thanksgiving & Christmas.",2,"About $15 adults · $11 kids 3–12 · under 2 free",
+   "The indoor Butterfly Atrium stays warm all year. There's also a Children's Garden.","https://www.hersheygardens.org/visit/hours/",""),
+ P("mcw","Middle Creek Wildlife Area",["trail","zoo"],ALL,16,"100 Museum Rd, Stevens, PA 17578","Trails sunrise–sunset. Visitor Center Tue–Sun 8am–4pm, closed Mondays and from Thanksgiving to mid-January.",0,"Free",
+   "Visitor center has animal exhibits and a bird-feeder window. Thousands of swans and snow geese stop here in late Feb–March.","https://www.pa.gov/agencies/pgc/about-us/contact-information/offices-and-regions/middle-creek-wildlife-management-area","717-733-1512"),
+ P("ymca","Lebanon Valley Family YMCA",["pool"],ALL,0,"201 N 7th St, Lebanon, PA 17046","Mon–Fri 4:30am–9pm · Sat 7am–5pm · Sun 8am–5pm",2,"Membership or short-term pass",
+   "Indoor pool. Ask the front desk about family swim times and guest or week passes.","https://www.ymca.org/locations/lebanon-valley-family-ymca",""),
+ P("hoh","Hands-on House Children's Museum",["blocks"],ALL,28,"721 Landis Valley Rd, Lancaster, PA 17601","Closed Mondays. Open Tue–Sun, usually from 9am (Sundays close early).",2,"About $12 per person",
+   "Made for ages 2–10, with a mini neighborhood indoors and outdoor play. Weekday mornings are quietest. Museums for All discount.","https://handsonhouse.org/visit/hours.html","717-569-5437"),
+ P("smp","State Museum of Pennsylvania",["museum","blocks"],ALL,26,"300 North St, Harrisburg, PA 17120","Wed–Sat 9am–4:30pm · Sun noon–4:30pm · closed Mon–Tue",1,"Adults $7 · kids 1–11 $5 · under 1 free",
+   "Curiosity Connection play area for ages 5 and under is included. Street and garage parking nearby.","https://statemuseumpa.org","717-787-4980"),
+ P("wsc","Whitaker Center Science Center",["museum","blocks"],ALL,26,"222 Market St, Harrisburg, PA 17101","Usually 10am–5pm, Fri–Mon. Check the site.",2,"Adults $16 · ages 3–17 $13 · 2 and under free",
+   "Kids Place area for little ones. Park in the Walnut St garage.","https://www.whitakercenter.org/this-month","717-214-2787"),
+ P("lsf","Lancaster Science Factory",["museum"],ALL,27,"454 New Holland Ave, Lancaster, PA 17602","Tue–Sat 10am–5pm · Sun noon–5pm (also Mondays in summer)",2,"$12 ages 3 and up",
+   "Best for older kids, but toddlers like the water table. Free on First Fridays 5–7pm.","https://lancastersciencefactory.org/www.LancasterScienceFactory.org/plan-your-visit","717-509-6363"),
+ P("kcv","Koziar's Christmas Village",["lights"],["fall","winter"],22,"782 Christmas Village Rd, Bernville, PA 19506","Nov 7, 2026 – Jan 2, 2027, evenings. Weekends only until Thanksgiving, then nightly.",2,"Ticket per person · young kids free",
+   "A million lights on an old dairy farm. Bring the stroller and warm layers. Plan about 90 minutes.","https://koziarschristmasvillage.com","610-488-1110"),
+ P("ltw","Lake Tobias Wildlife Park",["zoo","farm"],["spring","summer","fall"],35,"760 Tobias Rd, Halifax, PA 17032","Daily May 1 – Labor Day, then weekends only through October. Closed Nov–Apr.",1,"Zoo exhibits $11 · under 3 free",
+   "A day trip. The petting zoo is included, and the open-air safari tour is extra.","https://www.laketobias.com","717-362-9126")
+];
+const autoArea = () => { const c = (o.city || "") + " " + (o.st || ""); return /\b17(0|1|5)\d\d\b/.test(c) || (AREA.test(c) && !/\b(oh|ohio|tn|ky|nh|me|or|in|mo|va|nj|ct|il)\b/i.test(o.st || "")); };
+const inArea = () => o.local === "on" ? true : o.local === "off" ? false : autoArea();
+const placesFor = (k, sk) => PLACES.filter(x => x.kinds.includes(k) && x.seasons.includes(sk)).sort((a,b) => a.mi - b.mi);
+const zoneOf = mi => mi <= 20 ? "Near you" : mi <= 30 ? "20–30 mi" : "Day trip";
+const dirUrl = x => "https://www.google.com/maps/search/" + encodeURIComponent(x.name + ", " + x.addr);
+function placeCard(x, compact) {
+  const saved = o.favs.some(f => f.pid === x.id);
+  return `<div class="plc"><div class="ph1"><b>${esc(x.name)}</b>${costTag(x.c)}</div>
+    <div class="mut">${zoneOf(x.mi)}${x.mi ? " · about " + x.mi + " mi" : " · in town"}</div>
+    <div class="pl"><span>📍</span>${esc(x.addr)}</div>
+    <div class="pl"><span>🕒</span>${esc(x.hours)}</div>
+    <div class="pl"><span>💵</span>${esc(x.costNote)}</div>
+    ${compact ? "" : `<div class="pl"><span>💡</span>${esc(x.tip)}</div>`}
+    ${x.phone ? `<div class="pl"><span>☎️</span>${esc(x.phone)}</div>` : ""}
+    <div class="row" style="margin-top:8px">
+      <a class="chip go" target="_blank" rel="noopener" href="${dirUrl(x)}">Directions</a>
+      <button class="chip ${saved ? "done" : ""}" data-savep="${x.id}">${saved ? "★ Saved" : "☆ Save"}</button>
+    </div></div>`;
+}
+function placesBlock(a, sk) {
+  if (a.fav || !inArea()) return "";
+  const list = placesFor(a.k, sk);
+  if (!list.length) return "";
+  return `<div class="places"><h3 class="f">Real places for this</h3>
+    <p class="mut">Hours checked ${CHECKED}. Holiday and seasonal hours change, so tap Website before you go.</p>
+    ${list.map(x => placeCard(x)).join("")}</div>`;
+}
+
+// ---------- weekly toddler programs (from each library's / venue's own calendar, Nov 26, 2026) ----------
+const G = (day, start, end, name, pid, ages, c, cost, reg, tip, k) => ({day, start, end, name, pid, ages, c, cost, reg, tip, k});
+const PROGRAMS = [
+ G(0,"10:30am","11:00am","Smart Start Storytime","mpl","Babies & toddlers, birth–2",0,"Free","Just show up","A 30-minute baby & toddler storytime. Afterward, peek at the upstairs toy room.","library"),
+ G(0,"10:30am","11:00am","Little Explorers (storytime + sensory play)","ppl","Little ones & caregiver",1,"$5","Registration required: call 717-838-1347","Small group with stories, sensory bins and STEM play. Same faces every week, so it's great for making friends.","blocks"),
+ G(0,"9:00am","4:00pm","Preschool Playtime","psc","Under 5, parent stays",1,"About $5 a child","Just show up","Trampoline, foam pit and soft gym equipment. A good way to burn energy on a cold Monday.","blocks"),
+ G(1,"9:30am","10:00am","Smart Start Storytime","lcl","Babies & toddlers, birth–2",0,"Free","Just show up","Free 30-minute program with songs, rhymes and a story. Siblings are welcome, newborn too.","library"),
+ G(1,"10:30am","11:30am","Preschool Storytime","lcl","Preschoolers (toddlers welcome)",0,"Free","Just show up","If he's still going strong after Smart Start, stay for this one.","library"),
+ G(1,"9:00am","4:00pm","Preschool Playtime","psc","Under 5, parent stays",1,"About $5 a child","Just show up","Indoor gym time made for little ones.","blocks"),
+ G(2,"10:30am","11:00am","Smart Start Storytime","afl","Babies & toddlers, birth–2",0,"Free","Just show up","Free baby & toddler storytime in Annville.","library"),
+ G(2,"10:00am","11:00am","Preschool Storytime","mpl","Preschoolers (toddlers welcome)",0,"Free","Just show up","Stories and songs in Fredericksburg.","library"),
+ G(2,"12:15pm","12:45pm","Smart Start Storytime","ppl","Babies & toddlers, birth–2",0,"Free","Just show up","A midday option if mornings are rough with the baby.","library"),
+ G(3,"10:30am","11:00am","Smart Start Storytime","rcl","Babies & toddlers, birth–2",0,"Free","Just show up","Free baby & toddler storytime in Richland.","library"),
+ G(3,"11:30am","12:00pm","Smart Start Storytime","mcl","Babies & toddlers, birth–2",0,"Free","Just show up","Free baby & toddler storytime in Myerstown.","library"),
+ G(3,"10:30am","11:00am","Little Explorers (storytime + sensory play)","ppl","Little ones & caregiver",1,"$5","Registration required: call 717-838-1347","Also offered at 1:30pm on Thursdays.","blocks"),
+ G(3,"1:00pm","2:00pm","Bookworm Buddies","rcl","Little readers",0,"Free","Just show up","Stories and smiles for little ones. Good for an after-nap outing.","library"),
+ G(3,"8:00am","7:00pm","Lebanon Farmers Market","lfm","All ages",0,"Free to browse","Just show up","Indoor and warm. Grab a snack and let him watch the vendors.","market"),
+ G(4,"10:30am","11:30am","Preschool Story Time","mcl","Preschoolers (toddlers welcome)",0,"Free","Just show up","Stories and play in Myerstown.","library"),
+ G(4,"8:00am","7:00pm","Lebanon Farmers Market","lfm","All ages",0,"Free to browse","Just show up","Indoor, year-round market downtown. Elevator and free parking in back.","market"),
+ G(4,"9:00am","4:00pm","Preschool Playtime","psc","Under 5, parent stays",1,"About $5 a child","Just show up","End the week with some indoor bouncing.","blocks")
+];
+// open every day: good backup on any weekday
+const DAILY = [
+ {pid:"hcw", name:"Free Chocolate Tour ride", time:"Opens 9am", ages:"All ages", c:0, cost:"Free", reg:"Just show up", tip:"A 30-minute ride with singing cows and a free candy sample. Weekday mornings are quietest.", k:"museum"},
+ {pid:"zoo", name:"ZooAmerica walk", time:"10:00am–4:30pm", ages:"All ages", c:2, cost:"Kids 2 & under free · adults $16.50", reg:"Just show up", tip:"Small, stroller-friendly zoo. Bears, otters and owls are toddler favorites.", k:"zoo"},
+ {pid:"hgd", name:"Butterfly Atrium", time:"Opens 9am", ages:"All ages", c:2, cost:"Under 2 free · adults about $15", reg:"Just show up", tip:"It stays warm and tropical inside, even in winter.", k:"flowers"}
+];
+// dated special events
+const V = (name, from, to, wdays, time, place, addr, c, cost, tip, k) => ({name, from, to, wdays, time, place, addr, c, cost, tip, k});
+const EVENTS = [
+ V("Winter Wonderland & carriage rides","2026-12-04","2026-12-04",null,"5:00–8:00pm","Downtown Lebanon (8th St, Cumberland to Chestnut)","8th St & Cumberland St, Lebanon, PA 17042",0,"Festival free · carriage rides $10 adults, $5 ages 3–12","Fire pits, food trucks, music and lights. Carriages leave 5:00–7:35pm. Free parking lots within a block.","lights"),
+ V("Winter Wonderland & carriage rides","2026-12-11","2026-12-11",null,"5:00–8:00pm","Downtown Lebanon (8th St, Cumberland to Chestnut)","8th St & Cumberland St, Lebanon, PA 17042",0,"Festival free · carriage rides $10 adults, $5 ages 3–12","Second night of the downtown holiday festival.","lights"),
+ V("Holiday Chocolate House","2026-11-14","2026-12-31",null,"During opening hours","Hershey's Chocolate World","Hershey's Chocolate World, Hershey, PA 17033",0,"Free","A giant house covered in Hershey's candy, plus the free tour ride with holiday surprises.","museum"),
+ V("Hersheypark Christmas Candylane","2026-11-13","2027-01-03",[4,5,6],"Evenings, select dates","Hersheypark","100 W Hersheypark Dr, Hershey, PA 17033",3,"Park ticket (cheaper bought ahead)","Lights, kiddie rides and Santa's 9 live reindeer. Open select dates, mostly weekends, and daily the last weeks of December.","lights"),
+ V("Koziar's Christmas Village","2026-11-27","2027-01-02",null,"Evenings","Koziar's Christmas Village","782 Christmas Village Rd, Bernville, PA 19506",2,"Ticket per person · young kids free","A million lights on an old dairy farm, about 22 miles away. Plan 90 minutes and bring the stroller.","lights")
+];
+const ymd = d => d.toISOString().slice(0,10);
+const eventsOn = dt => { const k = ymd(dt), wd = (dt.getDay()+6)%7; return EVENTS.filter(e => k >= e.from && k <= e.to && (!e.wdays || e.wdays.includes(wd))); };
+const placeOf = id => PLACES.find(x => x.id === id);
+const progItem = g => { const pl = placeOf(g.pid); return {k:g.k, title:g.name, c:g.c, tip:g.tip, real:true, time: g.start ? g.start + "–" + g.end : g.time, place:pl.name, addr:pl.addr, phone:pl.phone, ages:g.ages, cost:g.cost, reg:g.reg, mi:pl.mi, pid:g.pid}; };
+const toMin = t => { const m = /^(\d+):(\d+)(am|pm)/.exec(t || ""); if (!m) return 9999; let h = +m[1] % 12; if (m[3] === "pm") h += 12; return h*60 + +m[2]; };
+function realOptions(i) {
+  const long = g => toMin(g.end) - toMin(g.start) > 180;
+  const prog = PROGRAMS.filter(g => g.day === i).sort((a,b) => (long(a) - long(b)) || (toMin(a.start) - toMin(b.start))).map(g => ({...progItem(g), anchor: !long(g)}));
+  const daily = DAILY.map(x => progItem({...x, start:"", end:"", time:x.time}));
+  return prog.concat(daily);
+}
+function realCard(x, idx, chosen) {
+  return `<div class="plc ${chosen ? "pick" : ""}"><div class="ph1"><b>${esc(x.title)}</b>${costTag(x.c)}</div>
+    <div class="pl"><span>🕒</span><b>${esc(x.time)}</b></div>
+    <div class="pl"><span>📍</span>${esc(x.place)} · ${esc(x.addr)}${x.mi ? " (about " + x.mi + " mi)" : ""}</div>
+    <div class="pl"><span>👶</span>${esc(x.ages)}</div>
+    <div class="pl"><span>💵</span>${esc(x.cost)}</div>
+    <div class="pl"><span>✅</span>${esc(x.reg)}</div>
+    ${x.tip ? `<div class="pl"><span>💡</span>${esc(x.tip)}</div>` : ""}
+    <div class="row" style="margin-top:8px"><a class="chip go" target="_blank" rel="noopener" href="${"https://www.google.com/maps/search/" + encodeURIComponent(x.place + ", " + x.addr)}">Directions</a>
+    ${chosen ? `<span class="chip done">✓ Today's plan</span>` : `<button class="chip" data-plan="${idx}">Make this the plan</button>`}</div></div>`;
+}
+function eventCard(e) {
+  return `<div class="plc ev"><div class="ph1"><b>${esc(e.name)}</b>${costTag(e.c)}</div>
+    <div class="pl"><span>🕒</span><b>${esc(e.time)}</b>${e.from === e.to ? "" : " · through " + fmt(new Date(e.to + "T12:00"))}</div>
+    <div class="pl"><span>📍</span>${esc(e.place)}${e.addr && e.addr !== e.place ? " · " + esc(e.addr) : ""}</div>
+    <div class="pl"><span>💵</span>${esc(e.cost)}</div>
+    <div class="pl"><span>💡</span>${esc(e.tip)}</div>
+    <div class="row" style="margin-top:8px"><a class="chip go" target="_blank" rel="noopener" href="${"https://www.google.com/maps/search/" + encodeURIComponent(e.addr)}">Directions</a></div></div>`;
+}
+
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const autoSeason = d => { const m = d.getMonth(); return m>=2&&m<=4?"spring":m>=5&&m<=7?"summer":m>=8&&m<=10?"fall":"winter"; };
+const where = () => o.city + ", " + o.st;
+const maps = q => "https://www.google.com/maps/search/" + encodeURIComponent(q + " near " + where());
+const mapsPlace = q => "https://www.google.com/maps/search/" + encodeURIComponent(q + ", " + where());
+const web = q => "https://www.google.com/search?q=" + encodeURIComponent(q);
+const fmt = d => d.toLocaleDateString(undefined, {month:"short", day:"numeric"});
+
+function weekData() {
+  const now = new Date(); const mon = new Date(now); mon.setHours(12,0,0,0); mon.setDate(now.getDate() - ((now.getDay()+6)%7) + o.week*7);
+  const sk = o.season === "auto" ? autoSeason(mon) : o.season; const p = PAL[sk];
+  const wk = Math.floor(mon.getTime() / (7*864e5));
+  const todayKey = new Date(new Date().setHours(12,0,0,0)).toISOString().slice(0,10);
+  const B = o.budget; let spentBefore = 0;
+  const days = DAYS.map((name, i) => {
+    const dt = new Date(mon); dt.setDate(mon.getDate() + i); const key = dt.toISOString().slice(0,10);
+    if (i > 4) { spentBefore += +o.spent[key] || 0; return {i, name, dt, key, home:true, a:{k:"home", title:"Home together", tip:"Everyone together, no plans. Rest up for next week.", c:0}}; }
+    const favs = o.favs.filter(f => (f.day === "any" || +f.day === i) && (f.season === "all" || f.season === sk))
+      .map(f => ({k:f.kind || "park", title:f.name, q:f.addr ? f.name + ", " + f.addr : f.name, addr:f.addr, hours:f.hours, tip:f.note || "One of your saved favorites.", fav:true, photo:f.photo, c:+f.cost||0}));
+    const real = inArea() ? realOptions(i) : [];
+    const all = real.length ? [...real, ...favs] : [...SEASONS[sk][i], ...favs];
+    const left = B.week ? B.week - spentBefore : Infinity;
+    const cap = B.freeOnly ? 0 : Math.min(B.day || Infinity, left);
+    let opts = all.filter(x => COSTV[x.c] <= cap); if (!opts.length) opts = all.filter(x => x.c === 0);
+    spentBefore += +o.spent[key] || 0;
+    const n = opts.length;
+    // real programs: start on the first scheduled program of the day; rotate only when she swaps
+    const anchors = opts.filter(x => x.anchor).length;
+    const base = real.length ? (anchors ? wk % anchors : 0) : wk + i;
+    const idx = (((base + (o.swap[key]||0)) % n) + n) % n;
+    return {i, name, dt, key, a:opts[idx], opts, idx, soc: SOCIAL[(wk+i) % SOCIAL.length]};
+  });
+  const spent = days.reduce((t, d) => t + (+o.spent[d.key] || 0), 0);
+  const seen = new Set(), evs = [];
+  if (inArea()) days.forEach(d => eventsOn(d.dt).forEach(e => { const id = e.name + e.from; if (!seen.has(id)) { seen.add(id); evs.push(e); } }));
+  return {mon, sk, p, days, todayKey, spent, evs};
+}
+
+// ---------- icons ----------
+const IC = {
+  week:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  parents:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.8-4 3.5-6 6.5-6s5.7 2 6.5 6M15 14.5c3 0 5.4 1.8 6 5"/></svg>',
+  favs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.8-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1L3.2 9.4l6.1-.8z"/></svg>',
+  family:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
+};
+const TABS = [["week","This week"],["parents","Parents"],["favs","Favorites"],["family","Family"],["settings","Settings"]];
+
+// ---------- views ----------
+function setupView(p) {
+  return `<div class="band" style="background:${p.band}"><div class="wrap"><h1 style="font-size:34px">Little Adventures</h1><div class="sub">A new outing for every weekday</div></div></div>
+  <main><div class="page"><div class="hero">${art("zoo", p)}</div><div class="body"><h2>Where are you based?</h2>
+  <p class="mut">Used to find libraries, museums, zoos and farms near you. It stays on this phone.</p>
+  <form data-f="loc"><div class="two"><input name="city" placeholder="City" required autocomplete="address-level2"><input name="st" placeholder="State" required autocomplete="address-level1"></div><button class="btn">Let's go</button></form></div></div></main>`;
+}
+function weekView() {
+  const W = weekData(), p = W.p;
+  if (!o.city || !o.st) return setupView(p);
+  if (sel === null) { const t = W.days.findIndex(d => d.key === W.todayKey); sel = t >= 0 ? t : 0; }
+  const d = W.days[sel], a = d.a;
+  const photo = o.photos[d.key] || a.photo;
+  const done = !!o.done[d.key];
+  const cells = W.days.map(x => `<button class="cell ${x.i===sel?"on":""} ${x.key===W.todayKey?"today":""}" data-pick="${x.i}" aria-label="${x.name}: ${esc(x.a.title)}">
+      <span class="dn">${x.name.slice(0,3)}</span><span class="dd">${x.dt.getDate()}</span>
+      <span class="th">${art(x.a.k, p, o.photos[x.key] || x.a.photo)}${o.done[x.key]?'<span class="ok">✓</span>':""}</span></button>`).join("");
+  const body = d.home ? `<div class="when">${d.name} · ${fmt(d.dt)}</div><h2 class="home-h">Home together</h2>
+      <p class="mut" style="font-size:16px">Saturdays and Sundays are family days at home. Everyone together, no plans needed.</p>
+      <div class="row"><label class="chip">Add a photo<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>${o.photos[d.key]?`<button class="chip" data-rmphoto="${d.key}">Remove photo</button>`:""}</div>`
+    : `<div class="when">${d.name} · ${fmt(d.dt)}${a.real ? " · " + esc(a.time) : ""}</div><h2 class="${done?"strike":""}">${esc(a.title)}</h2>
+      ${a.real ? `<div class="pl" style="margin-top:8px"><span>📍</span><span><b>${esc(a.place)}</b> · ${esc(a.addr)}</span></div>
+        <div class="pl"><span>👶</span>${esc(a.ages)}</div><div class="pl"><span>✅</span>${esc(a.reg)}</div>` : ""}
+      ${a.fav && a.addr ? `<div class="pl" style="margin-top:8px"><span>📍</span>${esc(a.addr)}</div>` : ""}${a.fav && a.hours ? `<div class="pl"><span>🕒</span>${esc(a.hours)}</div>` : ""}
+      <div class="price">${costTag(a.c)}<span>${a.real ? esc(a.cost) : a.c ? COSTR[a.c] + " for the family, usually" : "Usually free"}</span></div>
+      <div class="note n1"><b>Good to know</b>${esc(a.tip)}</div>
+      <div class="note n2"><b>Meet other parents</b>${esc(d.soc)}</div>
+      <div class="row">
+        ${a.real ? `<a class="chip go" target="_blank" rel="noopener" href="${"https://www.google.com/maps/search/" + encodeURIComponent(a.place + ", " + a.addr)}">Directions</a>`
+          : a.fav ? `<a class="chip go" target="_blank" rel="noopener" href="${a.addr ? "https://www.google.com/maps/search/" + encodeURIComponent(a.q) : mapsPlace(a.q)}">Directions</a>` : ""}
+      </div>
+      <div class="row">
+        <button class="chip ${done?"done":""}" data-done="${d.key}">${done ? "✓ We went!" : "We went!"}</button>
+        <button class="chip" data-invite="${sel}">Invite a mom</button>
+        <button class="chip" data-swap="${d.key}">Swap idea</button>
+        <label class="chip">${o.photos[d.key] ? "Change photo" : "Add a photo"}<input type="file" accept="image/*" hidden data-photo="${d.key}"></label>
+        ${o.photos[d.key] ? `<button class="chip" data-rmphoto="${d.key}">Remove photo</button>` : ""}
+      </div>
+      ${done || o.spent[d.key] ? `<form data-f="spend" data-key="${d.key}" class="spend"><label for="sp">What did you spend?</label><div class="sprow"><span>$</span><input id="sp" name="amt" type="number" inputmode="decimal" min="0" step="0.01" value="${o.spent[d.key] ?? ""}" placeholder="0"><button class="btn">Save</button></div></form>` : ""}
+      ${d.opts && d.opts.some(x => x.real) ? `<div class="places"><h3 class="f">Everything on ${d.name} for toddlers</h3>
+        <p class="mut">Times are from each library's and venue's own calendar (checked ${CHECKED}). Programs can be canceled for holidays or snow.</p>
+        ${d.opts.map((x, j) => x.real ? realCard(x, j, j === d.idx) : "").join("")}</div>` : ""}`;
+  const list = W.days.map(x => `<button class="item" data-pick="${x.i}" data-top="1"><span class="pic">${art(x.a.k, p, o.photos[x.key] || x.a.photo)}</span>
+      <span><span class="d">${x.name} · ${fmt(x.dt)}</span><br><span class="t">${esc(x.a.title)}</span>${x.a.real ? `<br><span class="d">${esc(x.a.time)} · ${esc(x.a.place)}</span>` : ""}</span>${x.home ? "" : `<span class="s2">${costTag(x.a.c)}</span>`}${o.done[x.key] ? `<span class="s">✓${o.spent[x.key] ? " $" + money(o.spent[x.key]) : ""}</span>` : ""}</button>`).join("");
+  return `<div class="band" style="background:${p.band}"><div class="wrap">
+    <div class="top"><div><div class="sub">${p.name} · ${esc(where())}</div><h1>Week of ${fmt(W.mon)}</h1></div>
+    <div class="nav"><button data-wk="-1" aria-label="Previous week">‹</button><button data-wk="1" aria-label="Next week">›</button></div></div>
+    <div class="cal">${cells}</div>${budgetBar(W)}</div></div>
+  <main>
+    <div class="page"><div class="hero ${anim?"anim":""}">${art(a.k, p, photo)}<span class="tag">${d.home ? "Family day" : (a.real ? esc(a.time) : p.name + " outing") + " · " + COST[a.c]}</span>${a.fav ? '<span class="tag fav">★ Favorite</span>' : ""}</div><div class="body">${body}</div></div>
+    ${inArea() && eventsOn(d.dt).length ? `<h3 class="sec">Special events ${d.home ? "this " + d.name : "on " + d.name}</h3>${eventsOn(d.dt).map(eventCard).join("")}` : ""}
+    <h3 class="sec">The whole week</h3><div class="list">${list}</div>
+    <h3 class="sec">Bucket list: ${p.name} trips</h3>
+    <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div></div>
+    <p class="mut" style="margin-top:18px">These are ideas, not a to-do list. With a newborn, easy weeks are perfect: library, a park walk, or a cafe playdate.</p>
+    <p class="mut" style="text-align:center">Version 7 · schedule checked ${CHECKED}</p>
+  </main>`;
+}
+const money = n => (+n).toFixed(+n % 1 ? 2 : 0);
+function budgetBar(W) {
+  const B = o.budget, free = W.days.slice(0,5).filter(d => d.a.c === 0).length;
+  const left = B.week ? B.week - W.spent : 0, pct = B.week ? Math.min(100, W.spent / B.week * 100) : 0;
+  return `<div class="bud">
+    ${B.week ? `<div class="bt"><b>$${money(W.spent)} spent of $${money(B.week)}</b><span>${left >= 0 ? "$" + money(left) + " left" : "$" + money(-left) + " over"}</span></div>
+      <div class="meter"><i style="width:${pct}%;background:${left < 0 ? "#fca5a5" : "#fff"}"></i></div>`
+    : `<div class="bt"><b>${W.spent ? "$" + money(W.spent) + " spent this week" : "No budget set"}</b><button class="mini" data-tab="settings" data-go="budget">Set a budget</button></div>`}
+    <div class="bt sm"><span>${free} of 5 weekday ideas are free${B.day ? " · up to $" + money(B.day) + " a day" : ""}</span>
+      <button class="mini ${B.freeOnly ? "on" : ""}" data-free="1" aria-pressed="${B.freeOnly}">${B.freeOnly ? "✓ Free only" : "Free only"}</button></div></div>`;
+}
+function plainBand(title, sub, p) { return `<div class="band" style="background:${p.band}"><div class="wrap"><div class="sub">${sub}</div><h1>${title}</h1></div></div>`; }
+function parentsView() {
+  const p = weekData().p;
+  return plainBand("Meet other parents", "Mom friends make every outing better", p) + `<main>
+    <div class="card"><h2 style="font-size:22px">Best weekly spots to meet moms</h2><p class="mut">Seeing the same faces every week is the fastest way to make friends. Pick one or two and go every week.</p>
+      ${inArea() ? PROGRAMS.filter(g => g.k === "library" && /Smart Start/.test(g.name) || /Little Explorers|Playtime/.test(g.name)).filter((g, i, arr) => arr.findIndex(h => h.name === g.name && h.pid === g.pid) === i)
+          .map(g => { const x = progItem(g); return `<div class="li"><div class="g"><b>${esc(x.title)}</b><div class="mut">${DAYS[g.day]}s ${esc(x.time)} · ${esc(x.place)} · ${esc(x.cost)}</div></div></div>`; }).join("")
+        : `<p class="mut">Library baby & toddler storytimes, toddler gym open-play, and church moms groups are the easiest places to start.</p>`}</div>
+    <div class="card"><h2 style="font-size:22px">Mom friends</h2><p class="mut">Save the moms you meet so you remember to invite them.</p>
+      <form data-f="friend"><input name="name" placeholder="Name" required><input name="note" placeholder="Where you met, kids' ages"><button class="btn">Add friend</button></form>
+      <div style="margin-top:10px">${o.friends.map(f => `<div class="li"><div class="g"><b>${esc(f.name)}</b><div class="mut">${esc(f.note)}</div></div><button class="x" data-del="friends:${esc(f.id)}" aria-label="Remove">✕</button></div>`).join("") || '<p class="mut">No one yet. Add the first mom you meet at story time.</p>'}</div></div>
+  </main>`;
+}
+function favsView() {
+  const p = weekData().p;
+  return plainBand("Our favorite places", "They join the weekly rotation", p) + `<main>
+    <div class="card"><h2 style="font-size:22px">Add a place you love</h2>
+      <form data-f="fav"><input name="name" placeholder="Place (e.g. Lebanon Community Library)" required>
+        <div class="two"><select name="day"><option value="any">Any weekday</option>${DAYS.slice(0,5).map((d,i)=>`<option value="${i}">${d}</option>`).join("")}</select>
+        <select name="season"><option value="all">All year</option>${Object.keys(PAL).map(k=>`<option value="${k}">${PAL[k].name}</option>`).join("")}</select></div>
+        <select name="cost">${COST.map((c,i)=>`<option value="${i}">${i ? c + " · " + COSTR[i] : "Free"}</option>`).join("")}</select>
+        <input name="note" placeholder="Note (e.g. story time Tue 10:30)">
+        <label class="mut">Photo (optional)<input type="file" name="photo" accept="image/*" style="padding-top:9px"></label>
+        <button class="btn">Save place</button></form></div>
+    ${inArea() ? `<div class="card"><h2 style="font-size:22px">Local spots we found</h2><p class="mut">Real places near ${esc(o.city)} with addresses, hours and prices (checked ${CHECKED}). Tap ☆ Save to add one to your week.</p>
+      ${PLACES.map(x => placeCard(x, true)).join("")}</div>` : ""}
+    <div class="card">${o.favs.map(f => `<div class="li"><span class="ph">${okPhoto(f.photo) ? `<img src="${f.photo}" alt="" style="width:100%;height:100%;object-fit:cover">` : art("park", p)}</span>
+      <div class="g"><b>★ ${esc(f.name)}</b> ${costTag(+f.cost||0)}${f.addr ? `<div class="mut">${esc(f.addr)}</div>` : ""}<div class="mut">${f.day === "any" ? "Any weekday" : esc(DAYS[+f.day])} · ${PAL[f.season] ? PAL[f.season].name : "All year"}${f.note ? " · " + esc(f.note) : ""}</div></div>
+      <button class="x" data-del="favs:${esc(f.id)}" aria-label="Remove">✕</button></div>`).join("") || '<p class="mut">No favorites yet. When you find a spot you love, save it here and it will show up in the week.</p>'}</div>
+  </main>`;
+}
+const member = id => state.members.find(m => m.id === id);
+const COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#a855f7","#ec4899"];
+const mopts = all => (all ? '<option value="">Everyone</option>' : "") + state.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join("");
+const who = id => { const m = member(id); return m ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COLORS.includes(m.color)?m.color:"#999"}"></span> ${esc(m.name)}` : "Everyone"; };
+function familyView() {
+  const p = weekData().p, t = state.ftab;
+  const seg = [["calendar","Calendar"],["chores","Chores"],["shopping","Shopping"],["members","Members"]].map(([k,l]) => `<button class="${t===k?"on":""}" data-ftab="${k}">${l}</button>`).join("");
+  let c = "";
+  if (t === "calendar") c = `<form data-f="event"><input name="title" placeholder="Event (e.g. Pediatrician)" required><div class="two"><input name="date" type="date" required><input name="time" type="time"></div><select name="who">${mopts(true)}</select><button class="btn">Add event</button></form>` +
+    ([...state.events].sort((a,b) => ((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||""))).map(e => `<div class="li"><div class="g"><b>${esc(e.title)}</b><div class="mut">${esc(e.date)} ${esc(e.time)} · ${who(e.who)}</div></div><button class="x" data-del2="events:${esc(e.id)}">✕</button></div>`).join("") || '<p class="mut">No events yet.</p>');
+  if (t === "chores") c = `<form data-f="chore"><input name="title" placeholder="Chore (e.g. Take out trash)" required><select name="who">${mopts(false)}</select><button class="btn">Add chore</button></form>` +
+    (state.chores.map(x => `<div class="li"><input class="chk" type="checkbox" ${x.done?"checked":""} data-tog="chores:${esc(x.id)}"><div class="g"><span class="${x.done?"strike":""}">${esc(x.title)}</span><div class="mut">${who(x.who)}</div></div><button class="x" data-del2="chores:${esc(x.id)}">✕</button></div>`).join("") || '<p class="mut">No chores yet.</p>');
+  if (t === "shopping") c = `<form data-f="item"><input name="title" placeholder="Add item (e.g. Diapers)" required><button class="btn">Add</button></form>` +
+    (state.shopping.map(x => `<div class="li"><input class="chk" type="checkbox" ${x.done?"checked":""} data-tog="shopping:${esc(x.id)}"><span class="g ${x.done?"strike":""}">${esc(x.title)}</span><button class="x" data-del2="shopping:${esc(x.id)}">✕</button></div>`).join("") || '<p class="mut">List is empty.</p>') +
+    (state.shopping.some(x => x.done) ? '<div class="row"><button class="chip" data-clear="1">Clear checked</button></div>' : "");
+  if (t === "members") c = `<form data-f="member"><input name="name" placeholder="Name (e.g. Mom)" required><button class="btn">Add</button></form>` +
+    (state.members.map(m => `<div class="li"><span class="g">${who(m.id)}</span><button class="x" data-del2="members:${esc(m.id)}">✕</button></div>`).join("") || '<p class="mut">Add your family.</p>');
+  return plainBand("Family", "Calendar, chores and shopping", p) + `<main><div class="seg">${seg}</div><div class="card">${c}</div></main>`;
+}
+function settingsView() {
+  const p = weekData().p, n = Object.keys(o.photos).length + o.favs.filter(f => f.photo).length;
+  return plainBand("Settings", "Location and season", p) + `<main><div class="card"><h2 style="font-size:22px">Your area</h2>
+    <form data-f="loc"><div class="two"><input name="city" value="${esc(o.city)}" placeholder="City" required><input name="st" value="${esc(o.st)}" placeholder="State" required></div><button class="btn">Update</button></form></div>
+    <div class="card" id="budget"><h2 style="font-size:22px">Budget</h2><p class="mut">Set what you're happy to spend. The plan picks ideas that fit, and always has a free one. Leave a box empty for no limit.</p>
+      <form data-f="budget"><div class="two"><label class="mut">Per week<div class="sprow"><span>$</span><input name="week" type="number" inputmode="decimal" min="0" step="1" value="${o.budget.week || ""}" placeholder="No limit"></div></label>
+      <label class="mut">Per day<div class="sprow"><span>$</span><input name="day" type="number" inputmode="decimal" min="0" step="1" value="${o.budget.day || ""}" placeholder="No limit"></div></label></div>
+      <label class="tog"><input class="chk" type="checkbox" name="freeOnly" ${o.budget.freeOnly ? "checked" : ""}> Free outings only</label>
+      <button class="btn">Save budget</button></form></div>
+    <div class="card"><h2 style="font-size:22px">How it works</h2><p class="mut">Take the quick tour again.</p><div class="row"><button class="btn" data-replay="1">Replay the tour</button></div></div>
+    <div class="card"><h2 style="font-size:22px">Local schedule</h2><p class="mut">Real storytimes, programs and events for the Lebanon, PA area. It's ${inArea() ? "<b>on</b>" : "<b>off</b>"} right now.</p>
+      <select data-local="1">${[["auto","Automatic (from your city)"],["on","Always show Lebanon-area schedule"],["off","Turn off"]].map(([k,l]) => `<option value="${k}" ${o.local===k?"selected":""}>${l}</option>`).join("")}</select></div>
+    <div class="card"><h2 style="font-size:22px">Season</h2><p class="mut">Automatic follows the calendar. Pick one to preview other seasons.</p>
+      <select data-season="1">${["auto",...Object.keys(PAL)].map(k => `<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Automatic":PAL[k].name}</option>`).join("")}</select></div>
+    <p class="mut" style="text-align:center;margin-top:16px">Version 7 · schedule checked ${CHECKED}</p>
+    <div class="card"><h2 style="font-size:22px">On this phone</h2><p class="mut">Photos, favorites, friends and checkmarks are saved on this phone only (${n} photo${n===1?"":"s"} saved).</p></div></main>`;
+}
+
+// ---------- welcome tutorial ----------
+const TUT = [
+ {k:"zoo", t:"Welcome to Little Adventures", b:"Every weekday there's one easy outing for you and the kids: a storytime, a play gym, the zoo, a farm. You don't have to go. It's just there when you want it. Saturdays and Sundays are family days at home."},
+ {k:"library", t:"Your week at a glance", b:"The colored strip at the top is your week. Tap any day to see its plan. A green check means you went. Use the ‹ › arrows to look at last week or plan next week."},
+ {k:"blocks", t:"Real places, real times", b:"Each day shows a real toddler program near Lebanon with the time, address, ages, cost and whether you need to sign up. Tap Directions to go. No searching online."},
+ {k:"park", t:"Not feeling it? Swap it", b:"Scroll down on any day to see everything else happening for toddlers. Tap “Make this the plan” on any of them, or tap Swap idea to see the next one."},
+ {k:"market", t:"Stay on budget", b:"Every outing is marked Free, $, $$ or $$$. Set a weekly or daily budget in Settings, or tap Free only. After you go, enter what you spent and the bar at the top keeps track."},
+ {k:"cafe", t:"Meet other moms", b:"Each day has a tip for starting a conversation. Tap Invite a mom to copy a ready-made text with the place and time. Save the moms you meet in the Parents tab."},
+ {k:"flowers", t:"Your favorites & photos", b:"Save places you love in Favorites and they'll show up in your week. Tap “Add a photo” on any day to keep a picture from the outing."},
+ {k:"home", t:"You're all set", b:"First, tell the app where you live so it can show the right places. You can replay this tour anytime from Settings."}
+];
+let tutStep = 0;
+function tutView() {
+  const p = PAL[o.season === "auto" ? autoSeason(new Date()) : o.season] || PAL.fall, x = TUT[tutStep], last = tutStep === TUT.length - 1;
+  return `<div class="tut" role="dialog" aria-modal="true" aria-label="Welcome tour"><div class="tcard">
+    <div class="tpic">${art(x.k, p)}</div>
+    <div class="tbody"><div class="mut" style="font-weight:800">${tutStep + 1} of ${TUT.length}</div><h2>${x.t}</h2><p>${x.b}</p>
+    <div class="dots">${TUT.map((_, i) => `<i class="${i === tutStep ? "on" : ""}"></i>`).join("")}</div>
+    <div class="trow">${tutStep ? `<button class="chip" data-tut="back">Back</button>` : `<button class="chip" data-tut="skip">Skip</button>`}
+      <button class="btn" data-tut="next">${last ? (o.city ? "Start exploring" : "Set my location") : "Next"}</button></div></div></div></div>`;
+}
+
+const views = {week:weekView, parents:parentsView, favs:favsView, family:familyView, settings:settingsView};
+function render() {
+  gid = 0;
+  if (!PAL[o.season]) o.season = "auto";
+  const p = weekData().p;
+  document.documentElement.style.setProperty("--band", p.band);
+  document.getElementById("app").innerHTML = views[state.tab]() + (state.tutDone ? "" : tutView());
+  document.getElementById("tabs").innerHTML = TABS.map(([k,l]) => `<button class="${state.tab===k?"on":""}" data-tab="${k}">${IC[k]}<span>${l}</span></button>`).join("");
+}
+
+// ---------- photos ----------
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = rej;
+    r.onload = () => { const img = new Image(); img.onerror = rej; img.onload = () => {
+      const s = Math.min(1, 720 / Math.max(img.width, img.height)); const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", .72)); }; img.src = r.result; };
+    r.readAsDataURL(file);
+  });
+}
+
+// ---------- events ----------
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-replay],[data-tut],[data-plan],[data-savep],[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
+  if (!b) return;
+  const ds = b.dataset;
+  if (ds.tut) {
+    if (ds.tut === "next" && tutStep < TUT.length - 1) tutStep++;
+    else if (ds.tut === "back") tutStep = Math.max(0, tutStep - 1);
+    else { state.tutDone = true; tutStep = 0; if (!o.city) state.tab = "week"; }
+    save(); return;
+  }
+  if (ds.replay) { state.tutDone = false; tutStep = 0; save(); return; }
+  if (ds.plan) { const d = weekData().days[sel]; o.swap[d.key] = (o.swap[d.key]||0) + (+ds.plan - d.idx); save(); window.scrollTo({top:0, behavior:"smooth"}); return; }
+  if (ds.savep) {
+    const x = PLACES.find(p => p.id === ds.savep); const i = o.favs.findIndex(f => f.pid === x.id);
+    if (i >= 0) o.favs.splice(i, 1);
+    else o.favs.push({id:uid(), pid:x.id, name:x.name, addr:x.addr, hours:x.hours, kind:x.kinds[0], day:"any", season:x.seasons.length === 4 ? "all" : x.seasons[0], note:x.tip, cost:x.c, photo:""});
+    save();
+  }
+  else if (ds.free) { o.budget.freeOnly = !o.budget.freeOnly; save(); }
+  else if (ds.tab) { state.tab = ds.tab; save(); if (ds.go) document.getElementById(ds.go)?.scrollIntoView(); else window.scrollTo(0,0); }
+  else if (ds.pick) { sel = +ds.pick; anim = true; render(); anim = false; if (ds.top) window.scrollTo({top:0, behavior:"smooth"}); }
+  else if (ds.wk) { o.week += +ds.wk; sel = 0; render(); }
+  else if (ds.done) { o.done[ds.done] = !o.done[ds.done]; save(); }
+  else if (ds.swap) { o.swap[ds.swap] = (o.swap[ds.swap]||0) + 1; save(); }
+  else if (ds.rmphoto) { delete o.photos[ds.rmphoto]; save(); }
+  else if (ds.del) { const [l, id] = ds.del.split(":"); o[l] = o[l].filter(x => x.id !== id); save(); }
+  else if (ds.del2) { const [l, id] = ds.del2.split(":"); state[l] = state[l].filter(x => x.id !== id); save(); }
+  else if (ds.ftab) { state.ftab = ds.ftab; save(); }
+  else if (ds.clear) { state.shopping = state.shopping.filter(x => !x.done); save(); }
+  else if (ds.invite) {
+    const d = weekData().days[+ds.invite];
+    const msg = d.a.real ? `Hi! We're going to ${d.a.title} at ${d.a.place} on ${d.name} (${fmt(d.dt)}) at ${d.a.time.split("–")[0]}. Want to bring the kids and join us?` : `Hi! We're going to ${d.a.title} on ${d.name} (${fmt(d.dt)}). Want to bring the kids and join us?`;
+    toast(msg, "Copying…");
+    try { navigator.clipboard.writeText(msg).then(() => document.getElementById("tst").textContent = "Copied! Paste it into a text to her.", () => document.getElementById("tst").textContent = "Press and hold the message to copy it."); }
+    catch (err) { document.getElementById("tst").textContent = "Press and hold the message to copy it."; }
+  }
+});
+document.addEventListener("change", async e => {
+  const t = e.target;
+  if (t.dataset.photo && t.files[0]) { try { o.photos[t.dataset.photo] = await shrink(t.files[0]); save(); } catch (err) { toast("That photo couldn't be opened. Try another one.", ""); } }
+  else if (t.dataset.tog) { const [l, id] = t.dataset.tog.split(":"); const x = state[l].find(x => x.id === id); if (x) { x.done = !x.done; save(); } }
+  else if (t.dataset.season) { o.season = t.value; save(); }
+  else if (t.dataset.local) { o.local = t.value; save(); }
+});
+document.addEventListener("submit", async e => {
+  const fm = e.target.closest("form[data-f]"); if (!fm) return;
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(fm)); const k = fm.dataset.f;
+  if (k === "loc") { o.city = v.city.trim(); o.st = v.st.trim(); state.tab = "week"; }
+  if (k === "friend") o.friends.push({id:uid(), name:v.name, note:v.note});
+  if (k === "fav") { let photo = ""; if (v.photo && v.photo.size) { try { photo = await shrink(v.photo); } catch (err) {} } o.favs.push({id:uid(), name:v.name, day:v.day, season:v.season, note:v.note, photo, cost:+v.cost||0}); }
+  if (k === "budget") { o.budget = {week:Math.max(0, +v.week || 0), day:Math.max(0, +v.day || 0), freeOnly:!!v.freeOnly}; state.tab = "week"; }
+  if (k === "spend") { const a = Math.max(0, +v.amt || 0); if (a) o.spent[fm.dataset.key] = Math.round(a*100)/100; else delete o.spent[fm.dataset.key]; }
+  if (k === "event") state.events.push({id:uid(), title:v.title, date:v.date, time:v.time, who:v.who});
+  if (k === "chore") state.chores.push({id:uid(), title:v.title, who:v.who, done:false});
+  if (k === "item") state.shopping.push({id:uid(), title:v.title, done:false});
+  if (k === "member") state.members.push({id:uid(), name:v.name, color:COLORS[state.members.length % COLORS.length]});
+  save();
+});
+render();
+}
+</script>
+</body>
+</html>
