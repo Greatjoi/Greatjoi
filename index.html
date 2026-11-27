@@ -98,6 +98,12 @@ input,select{min-height:44px;padding:0 12px;border-radius:12px;border:2px solid 
 .plc{border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:10px;background:var(--card)}
 .ph1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:16px}
 .pl{display:flex;gap:8px;font-size:14px;margin-top:5px;line-height:1.4}.pl>span:first-child{flex:none;width:18px}
+.tut{position:fixed;inset:0;z-index:20;background:#0009;display:grid;place-items:center;padding:16px;overflow:auto}
+.tcard{background:var(--card);border-radius:24px;max-width:440px;width:100%;overflow:hidden;box-shadow:0 20px 50px #0006}
+.tpic{aspect-ratio:16/10}.tpic svg{width:100%;height:100%;display:block}
+.tbody{padding:18px 20px 20px}.tbody h2{font-size:26px;font-weight:700;margin:4px 0 8px}.tbody p{margin:0;font-size:16px}
+.dots{display:flex;gap:6px;justify-content:center;margin:16px 0 4px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--band);width:22px;border-radius:99px}
+.trow{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
 .tog{display:flex;align-items:center;gap:10px;font-weight:800;min-height:44px}
 .chk{width:24px;height:24px;flex:none;min-height:0;accent-color:var(--band)}
 .strike{text-decoration:line-through;color:var(--mut)}
@@ -495,7 +501,7 @@ function weekView() {
     <h3 class="sec">Bucket list: ${p.name} trips</h3>
     <div class="card"><div class="list" style="gap:0">${NAT[W.sk].map(n => `<div class="li"><span class="g" style="font-weight:700">${esc(n)}</span></div>`).join("")}</div></div>
     <p class="mut" style="margin-top:18px">These are ideas, not a to-do list. With a newborn, easy weeks are perfect: library, a park walk, or a cafe playdate.</p>
-    <p class="mut" style="text-align:center">Version 6 · schedule checked ${CHECKED}</p>
+    <p class="mut" style="text-align:center">Version 7 · schedule checked ${CHECKED}</p>
   </main>`;
 }
 const money = n => (+n).toFixed(+n % 1 ? 2 : 0);
@@ -568,12 +574,35 @@ function settingsView() {
       <label class="mut">Per day<div class="sprow"><span>$</span><input name="day" type="number" inputmode="decimal" min="0" step="1" value="${o.budget.day || ""}" placeholder="No limit"></div></label></div>
       <label class="tog"><input class="chk" type="checkbox" name="freeOnly" ${o.budget.freeOnly ? "checked" : ""}> Free outings only</label>
       <button class="btn">Save budget</button></form></div>
+    <div class="card"><h2 style="font-size:22px">How it works</h2><p class="mut">Take the quick tour again.</p><div class="row"><button class="btn" data-replay="1">Replay the tour</button></div></div>
     <div class="card"><h2 style="font-size:22px">Local schedule</h2><p class="mut">Real storytimes, programs and events for the Lebanon, PA area. It's ${inArea() ? "<b>on</b>" : "<b>off</b>"} right now.</p>
       <select data-local="1">${[["auto","Automatic (from your city)"],["on","Always show Lebanon-area schedule"],["off","Turn off"]].map(([k,l]) => `<option value="${k}" ${o.local===k?"selected":""}>${l}</option>`).join("")}</select></div>
     <div class="card"><h2 style="font-size:22px">Season</h2><p class="mut">Automatic follows the calendar. Pick one to preview other seasons.</p>
       <select data-season="1">${["auto",...Object.keys(PAL)].map(k => `<option value="${k}" ${o.season===k?"selected":""}>${k==="auto"?"Automatic":PAL[k].name}</option>`).join("")}</select></div>
-    <p class="mut" style="text-align:center;margin-top:16px">Version 6 · schedule checked ${CHECKED}</p>
+    <p class="mut" style="text-align:center;margin-top:16px">Version 7 · schedule checked ${CHECKED}</p>
     <div class="card"><h2 style="font-size:22px">On this phone</h2><p class="mut">Photos, favorites, friends and checkmarks are saved on this phone only (${n} photo${n===1?"":"s"} saved).</p></div></main>`;
+}
+
+// ---------- welcome tutorial ----------
+const TUT = [
+ {k:"zoo", t:"Welcome to Little Adventures", b:"Every weekday there's one easy outing for you and the kids: a storytime, a play gym, the zoo, a farm. You don't have to go. It's just there when you want it. Saturdays and Sundays are family days at home."},
+ {k:"library", t:"Your week at a glance", b:"The colored strip at the top is your week. Tap any day to see its plan. A green check means you went. Use the ‹ › arrows to look at last week or plan next week."},
+ {k:"blocks", t:"Real places, real times", b:"Each day shows a real toddler program near Lebanon with the time, address, ages, cost and whether you need to sign up. Tap Directions to go. No searching online."},
+ {k:"park", t:"Not feeling it? Swap it", b:"Scroll down on any day to see everything else happening for toddlers. Tap “Make this the plan” on any of them, or tap Swap idea to see the next one."},
+ {k:"market", t:"Stay on budget", b:"Every outing is marked Free, $, $$ or $$$. Set a weekly or daily budget in Settings, or tap Free only. After you go, enter what you spent and the bar at the top keeps track."},
+ {k:"cafe", t:"Meet other moms", b:"Each day has a tip for starting a conversation. Tap Invite a mom to copy a ready-made text with the place and time. Save the moms you meet in the Parents tab."},
+ {k:"flowers", t:"Your favorites & photos", b:"Save places you love in Favorites and they'll show up in your week. Tap “Add a photo” on any day to keep a picture from the outing."},
+ {k:"home", t:"You're all set", b:"First, tell the app where you live so it can show the right places. You can replay this tour anytime from Settings."}
+];
+let tutStep = 0;
+function tutView() {
+  const p = PAL[o.season === "auto" ? autoSeason(new Date()) : o.season] || PAL.fall, x = TUT[tutStep], last = tutStep === TUT.length - 1;
+  return `<div class="tut" role="dialog" aria-modal="true" aria-label="Welcome tour"><div class="tcard">
+    <div class="tpic">${art(x.k, p)}</div>
+    <div class="tbody"><div class="mut" style="font-weight:800">${tutStep + 1} of ${TUT.length}</div><h2>${x.t}</h2><p>${x.b}</p>
+    <div class="dots">${TUT.map((_, i) => `<i class="${i === tutStep ? "on" : ""}"></i>`).join("")}</div>
+    <div class="trow">${tutStep ? `<button class="chip" data-tut="back">Back</button>` : `<button class="chip" data-tut="skip">Skip</button>`}
+      <button class="btn" data-tut="next">${last ? (o.city ? "Start exploring" : "Set my location") : "Next"}</button></div></div></div></div>`;
 }
 
 const views = {week:weekView, parents:parentsView, favs:favsView, family:familyView, settings:settingsView};
@@ -582,7 +611,7 @@ function render() {
   if (!PAL[o.season]) o.season = "auto";
   const p = weekData().p;
   document.documentElement.style.setProperty("--band", p.band);
-  document.getElementById("app").innerHTML = views[state.tab]();
+  document.getElementById("app").innerHTML = views[state.tab]() + (state.tutDone ? "" : tutView());
   document.getElementById("tabs").innerHTML = TABS.map(([k,l]) => `<button class="${state.tab===k?"on":""}" data-tab="${k}">${IC[k]}<span>${l}</span></button>`).join("");
 }
 
@@ -601,9 +630,16 @@ function shrink(file) {
 
 // ---------- events ----------
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-plan],[data-savep],[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
+  const b = e.target.closest("[data-replay],[data-tut],[data-plan],[data-savep],[data-free],[data-tab],[data-pick],[data-wk],[data-done],[data-swap],[data-invite],[data-rmphoto],[data-del],[data-del2],[data-ftab],[data-clear]");
   if (!b) return;
   const ds = b.dataset;
+  if (ds.tut) {
+    if (ds.tut === "next" && tutStep < TUT.length - 1) tutStep++;
+    else if (ds.tut === "back") tutStep = Math.max(0, tutStep - 1);
+    else { state.tutDone = true; tutStep = 0; if (!o.city) state.tab = "week"; }
+    save(); return;
+  }
+  if (ds.replay) { state.tutDone = false; tutStep = 0; save(); return; }
   if (ds.plan) { const d = weekData().days[sel]; o.swap[d.key] = (o.swap[d.key]||0) + (+ds.plan - d.idx); save(); window.scrollTo({top:0, behavior:"smooth"}); return; }
   if (ds.savep) {
     const x = PLACES.find(p => p.id === ds.savep); const i = o.favs.findIndex(f => f.pid === x.id);
